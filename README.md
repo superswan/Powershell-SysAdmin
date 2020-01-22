@@ -39,3 +39,11 @@ SysAdmin stuff using the all powerful powershell
 
 #### Enable script execution 
 ```powershell.exe Set-ExecutionPolicy Bypass -Force```
+
+#### Get REG key of any installed program
+```
+$keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
+$keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
+ 
+$k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
+```
