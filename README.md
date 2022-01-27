@@ -31,6 +31,9 @@ SysAdmin stuff using the all powerful powershell
 #### Get all PC Names according to pattern (requires activedirectory module)
 ``` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+```
 
+#### Get current logged on user
+``` query user /server:$SERVER```
+
 #### Enable Hyper-V
 ```Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All```
 
