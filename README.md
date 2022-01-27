@@ -13,7 +13,14 @@ SysAdmin stuff using the all powerful powershell
 ```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
 
 #### Remote Manage
+##### RDP
 ```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
+
+##### NLA
+```Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 1```
+
+##### Firewall Rule
+```Enable-NetFirewallRule -DisplayGroup “Remote Desktop”```
 
 #### Bloatware Remover
 ```iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))```
