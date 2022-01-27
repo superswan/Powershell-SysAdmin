@@ -37,6 +37,17 @@ SysAdmin stuff using the all powerful powershell
 #### Get current logged on user
 ``` query user /server:$SERVER```
 
+### Get logged in users for each computer
+```
+$COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
+
+foreach ($COMPUTER in $COMPUTER_LIST) {
+echo [$COMPUTER]
+query user /server:$COMPUTER
+echo `n
+}
+```
+
 #### Enable Hyper-V
 ```Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All```
 
