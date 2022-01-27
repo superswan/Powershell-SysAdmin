@@ -31,6 +31,9 @@ SysAdmin stuff using the all powerful powershell
 #### Get all PC Names according to pattern (requires activedirectory module)
 ``` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+```
 
+##### Get all computer names
+``` Get-ADComputer -Filter * | Select-Object -ExpandProperty Name ```
+
 #### Get current logged on user
 ``` query user /server:$SERVER```
 
