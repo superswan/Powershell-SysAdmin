@@ -44,7 +44,7 @@ SysAdmin stuff using the all powerful powershell
 #### Get current logged on user
 ``` query user /server:$SERVER```
 
-### Get logged in users for each computer
+#### Get logged in users for each computer
 ```
 $COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
 
@@ -53,6 +53,11 @@ echo [$COMPUTER]
 query user /server:$COMPUTER
 echo `n
 }
+```
+
+#### Get LastLogonDate/LastLogon for each computer
+```
+Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogonDate,@{Name='LastLogon';Expression={[DateTime]::FromFileTime($_.LastLogon)}}
 ```
 
 #### Enable Hyper-V
