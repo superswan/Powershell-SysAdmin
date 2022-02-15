@@ -60,6 +60,9 @@ echo `n
 Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogonDate,@{Name='LastLogon';Expression={[DateTime]::FromFileTime($_.LastLogon)}}
 ```
 
+#### Get LastLogon for User
+```Get-ADUser -Identity “username” -Properties “LastLogonDate”```
+
 #### Enable Hyper-V
 ```Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All```
 
