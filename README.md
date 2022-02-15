@@ -1,5 +1,5 @@
 # Powershell-SysAdmin
-SysAdmin stuff using the all powerful powershell
+SysAdmin stuff using the all powerful powershell. Commands that are hopefully helpful when administering a Windows environment.
 
 ## One-Liners
 
@@ -59,6 +59,9 @@ echo `n
 ```
 Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogonDate,@{Name='LastLogon';Expression={[DateTime]::FromFileTime($_.LastLogon)}}
 ```
+
+### Get All Disabled Users (Excluding OU)
+```Search-ADAccount -AccountDisabled -UsersOnly | Where {$_.DistinguishedName -notlike "*OU=Disabled Users,OU=USERS,DC=EXAMPLE,DC=COM"}```
 
 #### Get LastLogon for User
 ```Get-ADUser -Identity “username” -Properties “LastLogonDate”```
