@@ -82,3 +82,6 @@ $keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninsta
  
 $k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 ```
+
+## Windows Defender
+[Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
