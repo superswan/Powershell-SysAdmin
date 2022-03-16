@@ -85,10 +85,22 @@ $k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 
 #### Schedule Reboot
 ```
-[datetime]$RestartTime = '3AM'
-[datetime]$CurrentTime = Get-Date
-[int]$WaitSeconds = ( $RestartTime - $CurrentTime ).TotalSeconds
-shutdown -r -t $WaitSeconds
+$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
+$trigger = New-ScheduledTaskTrigger -Once -At 3am
+$taskname = 'ScheduledReboot'
+
+$params = @{
+Action  = $action
+Trigger = $trigger
+TaskName = $taskname
+}
+
+    if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
+        Set-ScheduledTask @params
+     }
+    else {
+        Register-ScheduledTask @params
+    }
 ```
 
 ## Windows Defender
