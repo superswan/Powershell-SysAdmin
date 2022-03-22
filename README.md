@@ -103,5 +103,11 @@ TaskName = $taskname
     }
 ```
 
+#### WAC Management
+```
+Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
+Enable-PSRemoting -force
+```
+
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
