@@ -1,5 +1,5 @@
 # Powershell-SysAdmin
-SysAdmin stuff using the all powerful powershell. Commands that are hopefully helpful when administering a Windows environment.
+SysAdmin stuff using the all powerful powershell. Commands that are hopefully helpful when administering a Windows environment. 
 
 ## One-Liners
 
@@ -111,3 +111,14 @@ Enable-PSRemoting -force
 
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
+
+## Install and configure Windows Subsystem for Linux (Server 2019)
+```
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+
+curl.exe -L -o debian.appx https://aka.ms/wsl-debian-gnulinux
+Rename-Item .\debian.appx debian.zip
+Expand-Archive .\debian.zip debian
+Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
+.\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
+```
