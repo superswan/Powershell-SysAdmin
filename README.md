@@ -43,8 +43,13 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 #### Get all PC Names according to pattern (requires activedirectory module)
 ``` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+```
 
-##### Get all computer names
+#### Get all computer names
 ``` Get-ADComputer -Filter * | Select-Object -ExpandProperty Name ```
+
+#### Get computer last logon
+```
+Get-ADComputer -Filter * -Properties Name,OperatingSystem ,lastlogontimestamp | Select Name,OperatingSystem ,@{N='lastlogontimestamp'; E={[DateTime]::FromFileTime($_.lastlogontimestamp)}}
+```
 
 #### Get current logged on user
 ``` query user /server:$SERVER```
