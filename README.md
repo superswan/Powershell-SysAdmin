@@ -113,6 +113,11 @@ TaskName = $taskname
     }
 ```
 
+#### Restart Explorer
+```
+gps explorer | spps
+```
+
 #### WAC Management
 ```
 Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
