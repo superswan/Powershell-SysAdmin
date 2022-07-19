@@ -148,3 +148,29 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
  }
 }
 ```
+
+### Do maintenance
+Requires PatchMyPC
+```
+# Windows Update
+if ((Get-Module -ListAvailable -Name PSWindowsUpdate) -eq $null)
+{
+    Write-Host -ForegroundColor Yellow "Windows Update module not found, installing..."
+    Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+    Install-Module -Name PSWindowsUpdate -Force
+}
+
+Write-Host -ForegroundColor Yellow "Getting Windows Updates..."
+Import-Module PSWindowsUpdate
+Install-WindowsUpdate -AcceptAll -IgnoreReboot
+
+# Patch Software
+Write-Host -ForegroundColor Yellow "Patching installed software..."
+& C:\Users\ITAdmin\Downloads\PatchMyPC.exe /auto -Wait
+
+# System File Check
+sfc /scannow
+
+# Cleanup disk
+cleanmgr.exe /full
+```
