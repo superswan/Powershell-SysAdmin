@@ -113,6 +113,9 @@ TaskName = $taskname
     }
 ```
 
+##### As One-liner
+shutdown -r -t $([int]([datetime]"11PM"-(Get-Date)).TotalSeconds)
+
 #### Restart Explorer
 ```
 gps explorer | spps
