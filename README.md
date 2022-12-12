@@ -114,7 +114,7 @@ TaskName = $taskname
 ```
 
 ##### As One-liner
-shutdown -r -t $([int]([datetime]"11PM"-(Get-Date)).TotalSeconds)
+`shutdown -r -t $([int]([datetime]"11PM"-(Get-Date)).TotalSeconds)`
 
 #### Restart Explorer
 ```
