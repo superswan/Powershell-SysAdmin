@@ -93,6 +93,9 @@ $keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninsta
 $k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 ```
 
+#### Retrieve Inventory of Installed Applications on remote computer (requires winget)
+`Invoke-Command -ComputerName COMPUTER-01 -ScriptBlock { winget list}`
+
 #### Schedule Reboot
 ```
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
