@@ -28,6 +28,9 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 #### Remote Event Viewer 
 ```  Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru```
 
+#### Update computers remotely
+``` Invoke-WuJob -ComputerName $Computers -Script { ipmo PSWindowsUpdate; Install-WindowsUpdate -AcceptAll -IgnoreReboot | Out-File "C:\Windows\PSWindowsUpdate.log"} -RunNow -Confirm:$false -Verbose -ErrorAction Ignore ```
+
 #### 
 
 #### Get creds from IE and Edge
