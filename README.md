@@ -3,6 +3,12 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 
 ## One-Liners
 
+#### Install Winget 
+```
+Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.1.12653/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
+Add-AppxPackage "C:\WinGet.msixbundle"
+```
+
 #### "Pong Command" - Listen for Pings. Uses WinDump.exe
 ```.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo```
 
