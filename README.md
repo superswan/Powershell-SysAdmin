@@ -15,6 +15,9 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 #### Enable File and Printer Sharing
 ```Set-NetFirewallRule -DisplayGroup "File And Printer Sharing" -Enabled True```
 
+#### Enable Linked Connections (Administrative and regular user accounts can see the same network shares)
+```reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f```
+
 #### Enable ICMP
 ```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
 
