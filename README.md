@@ -193,6 +193,22 @@ sfc /scannow
 cleanmgr.exe /full
 ```
 
+### Dump Wireless Password For All Profiles
+```
+$profiles = (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
+
+foreach ($profile in $profiles) {
+
+    # Get details about the profile, including the password in clear text
+    $password = (netsh wlan show profile name=$profile key=clear) | Select-String "Key Content\W+\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
+
+    # Print the profile name and password
+    "SSID: $profile"
+    "Password: $password"
+    "-------------------------"
+}
+```
+
 ## Winget Bulk Install
 https://winstall.app 
 ```
