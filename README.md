@@ -12,6 +12,9 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 #### "Pong Command" - Listen for Pings. Uses WinDump.exe
 ```.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo```
 
+#### Enable/Disable Firewall (All Profiles)
+```Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False```
+
 #### Enable File and Printer Sharing
 ```Set-NetFirewallRule -DisplayGroup "File And Printer Sharing" -Enabled True```
 
