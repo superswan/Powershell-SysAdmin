@@ -24,6 +24,13 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 #### Enable ICMP
 ```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
 
+#### Prefer IPv4 over IPv6
+This adjusts the prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.)
+```netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4```
+```netsh int ipv6 set prefixpolicy ::/0 45 6```
+
+Run both commands
+
 #### Remote Manage
 ##### RDP
 ```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
