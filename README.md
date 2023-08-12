@@ -25,8 +25,10 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 ```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
 
 #### Prefer IPv4 over IPv6
-This adjusts the prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.)
+This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.)
+
 ```netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4```
+
 ```netsh int ipv6 set prefixpolicy ::/0 45 6```
 
 Run both commands
