@@ -158,6 +158,14 @@ Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
 Enable-PSRemoting -force
 ```
 
+#### Time Sync
+```
+w32tm /query /status
+w32tm /config /manualpeerlist:"time.google.com,time.cloudflare.com,time.windows.com" /syncfromflags:manual /reliable:YES /update
+Restart-Service w32time
+w32tm /resync
+```
+
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
 
