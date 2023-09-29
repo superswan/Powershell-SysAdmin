@@ -166,6 +166,21 @@ Restart-Service w32time
 w32tm /resync
 ```
 
+#### Toggle touch screen
+```
+$TouchScreenDevices = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*HID-compliant touch screen*" }
+
+foreach ($Device in $TouchScreenDevices) {
+    if ($Device.Status -eq 'OK') {
+        Write-Output "Disabling device: $($Device.FriendlyName)..."
+        Disable-PnpDevice -InstanceId $Device.InstanceId -Confirm:$false
+    } else {
+        Write-Output "Enabling device: $($Device.FriendlyName)..."
+        Enable-PnpDevice -InstanceId $Device.InstanceId -Confirm:$false
+    }
+}
+```
+
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
 
