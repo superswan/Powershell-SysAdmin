@@ -18,6 +18,10 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 
 ## One-Liners
 
+#### Get Shutdown Events
+```Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message
+```
+
 #### Get Active Directory User Info
 ```
 Get-ADUser -Filter "Name -like '*partofname*'"
