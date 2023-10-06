@@ -3,6 +3,14 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 
 ## One-Liners
 
+#### Get Domain Name
+```$domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name```
+
+#### Find Domain Controller using DNS
+```Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -QueryType SRV```
+
+###
+
 #### Install Winget 
 ```
 Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.1.12653/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
