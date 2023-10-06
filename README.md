@@ -1,23 +1,27 @@
 # Powershell-SysAdmin
 SysAdmin stuff using the all powerful powershell. Commands that are hopefully helpful when administering a Windows environment. 
 
-* [Practice](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#practice)
-* [One-Liners](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#one-liners)
-* [Snippets](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#snippets)
-* [Scripts](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#scripts)
-* [Windows Defender](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#windows-defender)
-* [Fun](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#fun)
+* [Practice](#practice)
+* [One-Liners](#one-liners)
+* [Snippets](#snippets)
+* [Scripts](#scripts)
+* [Windows Defender](#windows-defender)
+* [Fun](#fun)
 
 #### Install Winget 
 ```
 Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 ```
-
 ## Practice
 [Under The Wire](https://underthewire.tech)
 
 ## One-Liners
+
+#### Get Active Directory User Info
+```
+Get-ADUser -Filter "Name -like '*partofname*'"
+```
 
 #### Get Domain Name
 ```$domain = []::GetCurrentDomain().Name```
