@@ -61,6 +61,8 @@ This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping
 
 ```netsh winsock reset```
 
+#### Forcefully open Internet Explorer 
+```mshta.exe "javascript:open();close();"```
 
 ### Remote Manage
 
