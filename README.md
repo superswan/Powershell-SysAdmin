@@ -4,20 +4,24 @@ SysAdmin stuff using the all powerful powershell. Commands that are hopefully he
 * [Practice](#practice)
 * [One-Liners](#one-liners)
 * [Snippets](#snippets)
+* [Microsoft 355](#microsoft-365)
 * [Scripts](#scripts)
 * [Windows Defender](#windows-defender)
 * [Fun](#fun)
 
 #### Install Winget 
+This will break from time to time, need to visit the winget-cli repo and replace URL
 ```
 Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 ```
+---
 ## Practice
+Not sure if the slack channel is active usually it's the name of the exercise with a 1 at the end like `century1`
 [Under The Wire](https://underthewire.tech)
 
 ## One-Liners
-
+---
 #### Get Shutdown Events
 ```
 Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message
@@ -66,16 +70,16 @@ This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping
 
 ### Remote Manage
 
-#### RDP
+#### Enable RDP
 ```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
 
-#### NLA
+#### Set NLA
 ```Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 1```
 
 #### Firewall Rule
 ```Enable-NetFirewallRule -DisplayGroup “Remote Desktop”```
 
-#### Bloatware Remover
+#### Bloatware Remover (Outdated)
 ```iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))```
 
 #### Remote Event Viewer 
@@ -114,17 +118,6 @@ Get-ADComputer -Filter * -Properties Name,OperatingSystem ,lastlogontimestamp | 
 #### Get current logged on user
 ``` query user /server:$SERVER```
 
-#### Get logged in users for each computer
-```
-$COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
-
-foreach ($COMPUTER in $COMPUTER_LIST) {
-echo [$COMPUTER]
-query user /server:$COMPUTER
-echo `n
-}
-```
-
 #### Get LastLogonDate/LastLogon for each computer
 ```
 Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogonDate,@{Name='LastLogon';Expression={[DateTime]::FromFileTime($_.LastLogon)}}
@@ -145,38 +138,11 @@ Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogon
 #### Enable script execution 
 ```powershell.exe Set-ExecutionPolicy Bypass -Force```
 
-#### Get REG key of any installed program
-```
-$keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
-$keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
- 
-$k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
-```
 
 #### Retrieve Inventory of Installed Applications on remote computer (requires winget)
 `Invoke-Command -ComputerName COMPUTER-01 -ScriptBlock { winget list}`
 
-#### Schedule Reboot
-```
-$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
-$trigger = New-ScheduledTaskTrigger -Once -At 3am
-$taskname = 'ScheduledReboot'
-
-$params = @{
-Action  = $action
-Trigger = $trigger
-TaskName = $taskname
-}
-
-    if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
-        Set-ScheduledTask @params
-     }
-    else {
-        Register-ScheduledTask @params
-    }
-```
-
-##### As One-liner
+#### Scheduled Reboot
 `shutdown -r -t $([int]([datetime]"11PM"-(Get-Date)).TotalSeconds)`
 
 #### Restart Explorer
@@ -198,6 +164,50 @@ Restart-Service w32time
 w32tm /resync
 ```
 
+## Snippets
+---
+#### Self-elevate script 
+```
+if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
+ if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
+  $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
+  Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
+  Exit
+ }
+}
+```
+
+#### Get logged in users for each computer
+```
+$COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
+
+foreach ($COMPUTER in $COMPUTER_LIST) {
+echo [$COMPUTER]
+query user /server:$COMPUTER
+echo `n
+}
+```
+
+#### Schedule Reboot
+```
+$action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
+$trigger = New-ScheduledTaskTrigger -Once -At 3am
+$taskname = 'ScheduledReboot'
+
+$params = @{
+Action  = $action
+Trigger = $trigger
+TaskName = $taskname
+}
+
+    if(Get-ScheduledTask -TaskName $params.TaskName -EA SilentlyContinue) { 
+        Set-ScheduledTask @params
+     }
+    else {
+        Register-ScheduledTask @params
+    }
+```
+
 #### Toggle touch screen
 ```
 $TouchScreenDevices = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*HID-compliant touch screen*" }
@@ -213,17 +223,12 @@ foreach ($Device in $TouchScreenDevices) {
 }
 ```
 
-## Snippets
-
-#### Self-elevate script 
+#### Get REG key of any installed program
 ```
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
- if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
-  $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-  Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-  Exit
- }
-}
+$keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
+$keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
+ 
+$k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 ```
 
 #### Do maintenance
@@ -285,15 +290,21 @@ Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 .\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
 ```
 
-## Scripts
+## Microsoft 365
+---
+#### Connect to Exchange Online
 
+## Scripts
+---
 * HP Bloatware Removal
 * AD Audit
+* Microsoft Official Windows Search Reset
 
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
 
 ## Fun
+---
 #### Final Fantasy Victory Beep
 ```
 [console]::beep(784,300); Start-Sleep -Milliseconds 100; [console]::beep(784,600); [console]::beep(622,600); [console]::beep(698,600); [console]::beep(784,200); Start-Sleep -Milliseconds 200; [console]::beep(698,200); [console]::beep(784,800)
