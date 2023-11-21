@@ -190,6 +190,19 @@ echo `n
 }
 ```
 
+#### Update PATH Environment Variable Dynamically
+Portable tools and programs are placed in a directory, loops over the directory and adds subfolders to PATH environment variable if they don't already exist.
+```
+$binPath = "C:\bin"
+Get-ChildItem -Path $binPath -Directory | ForEach-Object {
+    $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
+    $newPath = $_.FullName
+    If (-Not $currentPath.Contains($newPath)) {
+        [System.Environment]::SetEnvironmentVariable("PATH", "$currentPath;$newPath", "Machine")
+    }
+}
+```
+
 #### Schedule Reboot
 ```
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
