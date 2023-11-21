@@ -1,11 +1,12 @@
 ![header](https://capsule-render.vercel.app/api?type=waving&color=012456&fontColor=ffffff&height=150&section=header&fontAlignY=38&text=Powershell%20Reference&fontSize=60)
 
-SysAdmin stuff using the all powerful powershell. Commands, code snippets, and scripts that are hopefully helpful when administering a Windows environment. 
+A collection of commands, code snippets, and scripts tailored for managing and automating tasks in a Windows environment. Designed for experienced administrators, this resource delves beyond basic PowerShell usage, offering practical solutions for variety of scenarios. 
 
 * [Practice](#practice)
 * [One-Liners](#one-liners)
 * [Snippets](#snippets)
-* [Microsoft 355](#microsoft-365)
+* [Active Directory](#active-directory)
+* [Microsoft 365](#microsoft-365)
 * [Scripts](#scripts)
 * [Windows Defender](#windows-defender)
 * [Fun](#fun)
@@ -304,6 +305,10 @@ Expand-Archive .\debian.zip debian
 Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 .\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
 ```
+
+## Active Directory
+---
+
 
 ## Microsoft 365
 ---
