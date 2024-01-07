@@ -25,6 +25,12 @@ Not sure if the slack channel is active usually it's the name of the exercise wi
 
 ## One-Liners
 ---
+
+#### Close All Open Windows
+```
+Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process
+```
+
 #### Get Shutdown Events
 ```
 Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message
