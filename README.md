@@ -175,6 +175,26 @@ w32tm /resync
 
 ## Snippets
 ---
+
+#### Push Updates to Remote Computers using Invoke-WuJob (PSWindowsUpdate)
+```
+$Computers = @("PMC01","PMC04","PMC06","PMC08","PMC-JOAN","PMC-SARA","LAWOFFICE-2","PMC03","PMC07")
+$OnlineComputers = @()
+
+foreach ($Computer in $Computers) {
+    if (Test-Connection -ComputerName $Computer -Count 1 -Quiet) {
+        $OnlineComputers += $Computer
+    }
+    else {
+        Write-Host "$Computer is offline."
+    }
+}
+
+Invoke-WuJob -ComputerName $OnlineComputers -Script { 
+    ipmo PSWindowsUpdate; 
+    Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate | Out-File "C:\Windows\PSWindowsUpdate.log"
+} -RunNow -Confirm:$false -Verbose -ErrorAction Ignore
+```
 #### Self-elevate script 
 ```
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
