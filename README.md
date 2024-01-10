@@ -13,7 +13,7 @@ A collection of commands, code snippets, and scripts tailored for managing and a
 
 #### Install Winget 
 This will break from time to time, need to visit the winget-cli repo and replace URL
-```
+```powershell
 Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 ```
@@ -177,7 +177,7 @@ w32tm /resync
 ---
 
 #### Push Updates to Remote Computers using Invoke-WuJob (PSWindowsUpdate)
-```
+```powershell
 $Computers = @("PMC01","PMC04","PMC06","PMC08","PMC-JOAN","PMC-SARA","LAWOFFICE-2","PMC03","PMC07")
 $OnlineComputers = @()
 
@@ -196,7 +196,7 @@ Invoke-WuJob -ComputerName $OnlineComputers -Script {
 } -RunNow -Confirm:$false -Verbose -ErrorAction Ignore
 ```
 #### Self-elevate script 
-```
+```powershell
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
  if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
   $CommandLine = "-File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
@@ -207,7 +207,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 ```
 
 #### Get logged in users for each computer
-```
+```powershell
 $COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
 
 foreach ($COMPUTER in $COMPUTER_LIST) {
@@ -219,7 +219,7 @@ echo `n
 
 #### Update PATH Environment Variable Dynamically
 Portable tools and programs are placed in a directory, loops over the directory and adds subfolders to PATH environment variable if they don't already exist.
-```
+```powershell
 $binPath = "C:\bin"
 Get-ChildItem -Path $binPath -Directory | ForEach-Object {
     $currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "Machine")
@@ -231,7 +231,7 @@ Get-ChildItem -Path $binPath -Directory | ForEach-Object {
 ```
 
 #### Schedule Reboot
-```
+```powershell
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
 $trigger = New-ScheduledTaskTrigger -Once -At 3am
 $taskname = 'ScheduledReboot'
@@ -251,7 +251,7 @@ TaskName = $taskname
 ```
 
 #### Toggle touch screen
-```
+```powershell
 $TouchScreenDevices = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*HID-compliant touch screen*" }
 
 foreach ($Device in $TouchScreenDevices) {
@@ -266,7 +266,7 @@ foreach ($Device in $TouchScreenDevices) {
 ```
 
 #### Get REG key of any installed program
-```
+```powershell
 $keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
 $keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
  
@@ -275,7 +275,7 @@ $k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 
 #### Do maintenance
 **Requires PatchMyPC**
-```
+```powershell
 # Windows Update
 if ((Get-Module -ListAvailable -Name PSWindowsUpdate) -eq $null)
 {
@@ -300,7 +300,7 @@ cleanmgr.exe /full
 ```
 
 #### Dump Wireless Password For All Profiles
-```
+```powershell
 $profiles = (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
 
 foreach ($profile in $profiles) {
@@ -317,12 +317,12 @@ foreach ($profile in $profiles) {
 
 #### Winget Bulk Install
 https://winstall.app 
-```
+```powershell
 winget install --id=Microsoft.DotNet.Framework.DeveloperPack_4 -e  ; winget install --id=Google.Chrome -e  ; winget install --id=Microsoft.VCRedist.2013.x64 -e  ; winget install --id=Microsoft.VCRedist.2013.x86 -e  ; winget install --id=Microsoft.VCRedist.2015+.x64 -e  ; winget install --id=Microsoft.VCRedist.2015+.x86 -e  ; winget install --id=Microsoft.VCRedist.2012.x64 -e  ; winget install --id=Microsoft.VCRedist.2012.x86 -e  ; winget install --id=Microsoft.VCRedist.2010.x64 -e  ; winget install --id=Microsoft.VCRedist.2010.x86 -e  ; winget install --id=Microsoft.VCRedist.2005.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x64 -e  ; winget install --id=Oracle.JavaRuntimeEnvironment -e  ; winget install --id=7zip.7zip -e  ; winget install --id=Adobe.Acrobat.Reader.64-bit -e 
 ```
 
 #### Install and configure Windows Subsystem for Linux (Server 2019)
-```
+```powershell
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 
 curl.exe -L -o debian.appx https://aka.ms/wsl-debian-gnulinux
