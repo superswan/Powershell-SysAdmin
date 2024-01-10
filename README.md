@@ -334,6 +334,35 @@ Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 
 ## Active Directory
 ---
+#### Disable all stale computer accounts (90 days)
+```powershell
+# Import the Active Directory module
+Import-Module ActiveDirectory
+
+# Define the number of days for stale account detection
+$StaleDays = 90
+
+# Calculate the date from $StaleDays ago
+$Date = (Get-Date).AddDays(-$StaleDays)
+
+# Find computer accounts that haven't logged in since $Date
+$StaleComputers = Get-ADComputer -Filter {LastLogonTimeStamp -lt $Date} -Properties LastLogonTimeStamp
+
+# Loop through each stale computer and remove it
+foreach ($Computer in $StaleComputers) {
+    $ComputerName = $Computer.Name
+    $LastLogonDate = [datetime]::FromFileTime($Computer.LastLogonTimeStamp)
+    
+    Write-Host "Removing computer: $ComputerName (Last Logon: $LastLogonDate)"
+    
+    # Remove the computer account from Active Directory
+    # Uncomment the next line to perform the deletion
+    # Remove-ADComputer -Identity $Computer.DistinguishedName -Confirm:$false
+}
+
+# Output completion message
+Write-Host "Completed removal of stale computer accounts."
+```
 
 
 ## Microsoft 365
