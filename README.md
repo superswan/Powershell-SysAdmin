@@ -299,6 +299,59 @@ sfc /scannow
 cleanmgr.exe /full
 ```
 
+#### File organizer 
+```powershell
+# PowerShell script to organize files into subdirectories based on file type, without moving existing directories
+# ! Use with caution there is no confirmation or undo !
+
+# Prompt user to enter the directory path
+$directoryPath = Read-Host -Prompt 'Enter the directory path'
+
+# Check if the directory exists
+if (-Not (Test-Path $directoryPath)) {
+    Write-Host "The directory does not exist."
+    exit
+}
+
+# Define subdirectory names and file extensions
+$subdirectories = @{
+    "Photos" = @("*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.tiff");
+    "Videos" = @("*.mp4", "*.mov", "*.wmv", "*.flv", "*.avi", "*.mkv");
+    "Documents" = @("*.doc", "*.docx", "*.pdf", "*.txt", "*.xls", "*.xlsx", "*.ppt", "*.pptx");
+    "Bin" = @("*.exe", "*.bin", "*.dll", "*.bat", "*.msi");
+    "Other" = @()
+}
+
+# Function to move files to their respective subdirectories
+function Move-Files {
+    param(
+        [string]$SubDir,
+        [string[]]$Extensions
+    )
+
+    # Create the subdirectory if it doesn't exist
+    $subDirPath = Join-Path $directoryPath $SubDir
+    if (-Not (Test-Path $subDirPath)) {
+        New-Item -Path $subDirPath -ItemType Directory | Out-Null
+    }
+
+    # Move files to the subdirectory
+    foreach ($extension in $Extensions) {
+        Get-ChildItem -Path $directoryPath -Filter $extension -File | Move-Item -Destination $subDirPath
+    }
+}
+
+# Move files based on extensions
+foreach ($subDir in $subdirectories.Keys) {
+    Move-Files -SubDir $subDir -Extensions $subdirectories[$subDir]
+}
+
+# Move remaining files to 'Other' directory
+Get-ChildItem -Path $directoryPath -File | 
+    Where-Object { $_.Extension -notin $subdirectories.Values -and !($_.PSIsContainer) } | 
+    Move-Item -Destination (Join-Path $directoryPath "Other")
+```
+
 #### Dump Wireless Password For All Profiles
 ```powershell
 $profiles = (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
