@@ -421,6 +421,28 @@ Write-Host "Completed removal of stale computer accounts."
 ## Microsoft 365
 ---
 #### Connect to Exchange Online
+```
+Install-Module -Name ExchangeOnlineManagement
+Import-Module ExchangeOnlineManagement
+Connect-ExchangeOnline -UserPrincipalName <UPN> [-ExchangeEnvironmentName <Value>] [-ShowBanner:$false] [-DelegatedOrganization <String>] [-SkipLoadingFormatData]
+```
+
+####  Exchange Online MailBox info (Mailbox size and Archive size) 
+```powershell
+Get-Mailbox -RecipientTypeDetails UserMailbox -Filter "ArchiveStatus -eq 'Active'" | ForEach-Object {
+    $mailboxStats = Get-MailboxStatistics $_.Identity
+    $archiveStats = Get-MailboxStatistics $_.Identity -Archive
+    [PSCustomObject]@{
+        DisplayName = $_.DisplayName
+        PrimarySmtpAddress = $_.PrimarySmtpAddress
+        ArchiveStatus = $_.ArchiveStatus
+        AutoExpandArchive = $_.AutoExpandingArchiveEnabled
+        TotalItemSize = $mailboxStats.TotalItemSize
+        ArchiveSize = $archiveStats.TotalItemSize
+    }
+} | Select-Object DisplayName, PrimarySmtpAddress, ArchiveStatus, AutoExpandArchive, TotalItemSize, ArchiveSize
+```
+
 
 ## Scripts
 ---
