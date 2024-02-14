@@ -429,16 +429,19 @@ Connect-ExchangeOnline -UserPrincipalName <UPN> [-ExchangeEnvironmentName <Value
 
 ####  Exchange Online MailBox info (Mailbox size and Archive size) 
 ```powershell
-Get-Mailbox -RecipientTypeDetails UserMailbox -Filter "ArchiveStatus -eq 'Active'" | ForEach-Object {
+Get-Mailbox -RecipientTypeDetails UserMailbox | ForEach-Object {
     $mailboxStats = Get-MailboxStatistics $_.Identity
-    $archiveStats = Get-MailboxStatistics $_.Identity -Archive
+    $archiveStats = @{TotalItemSize = "N/A"}  # Default value in case there's no archive.
+    if ($_.ArchiveStatus -eq 'Active') {
+        $archiveStats = Get-MailboxStatistics $_.Identity -Archive
+    }
     [PSCustomObject]@{
         DisplayName = $_.DisplayName
         PrimarySmtpAddress = $_.PrimarySmtpAddress
         ArchiveStatus = $_.ArchiveStatus
         AutoExpandArchive = $_.AutoExpandingArchiveEnabled
         TotalItemSize = $mailboxStats.TotalItemSize
-        ArchiveSize = $archiveStats.TotalItemSize
+        ArchiveSize = if ($_.ArchiveStatus -eq 'Active') {$archiveStats.TotalItemSize} else {"Not Applicable"}
     }
 } | Select-Object DisplayName, PrimarySmtpAddress, ArchiveStatus, AutoExpandArchive, TotalItemSize, ArchiveSize
 ```
