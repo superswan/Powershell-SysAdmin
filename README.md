@@ -387,6 +387,24 @@ Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 
 ## Active Directory
 ---
+```
+Import-Module ActiveDirectory
+```
+
+#### Locate all DCs
+```powershell
+dig +noall +answer _ldap._tcp.dc._msdcs.<domain-name> SRV
+```
+```powershell
+nslookup -type=srv _ldap._tcp.dc._msdcs.<domain-name>
+```
+```powershell
+nltest /dclist:<your-domain-name>
+```
+```powershell
+Get-ADDomainController -Filter * | Select Name, HostName, Site
+```
+
 #### Disable all stale computer accounts (90 days)
 ```powershell
 # Import the Active Directory module
