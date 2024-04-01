@@ -480,3 +480,38 @@ Get-Mailbox -RecipientTypeDetails UserMailbox | ForEach-Object {
 ```
 [console]::beep(784,300); Start-Sleep -Milliseconds 100; [console]::beep(784,600); [console]::beep(622,600); [console]::beep(698,600); [console]::beep(784,200); Start-Sleep -Milliseconds 200; [console]::beep(698,200); [console]::beep(784,800)
 ```
+
+#### DVD Cursor
+Bounces cursor around the screen like the DVD logo
+```
+Add-Type -AssemblyName System.Windows.Forms
+
+# Get screen dimensions
+$bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+$maxX = $bounds.Width
+$maxY = $bounds.Height
+
+$x = [System.Windows.Forms.Cursor]::Position.X
+$y = [System.Windows.Forms.Cursor]::Position.Y
+
+# Movement vector (speed)
+$dx = 14
+$dy = 14
+
+while ($true) {
+    $x += $dx
+    $y += $dy
+
+    # Check for screen bounds and reverse direction if needed
+    if ($x -le 0 -or $x -ge $maxX) {
+        $dx = -$dx
+    }
+    if ($y -le 0 -or $y -ge $maxY) {
+        $dy = -$dy
+    }
+
+    [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y)
+    
+    Start-Sleep -Milliseconds 50
+}
+```
