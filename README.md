@@ -435,6 +435,31 @@ foreach ($Computer in $StaleComputers) {
 Write-Host "Completed removal of stale computer accounts."
 ```
 
+#### Retrieve list of all DCs and assigned FSMO roles 
+```
+Import-Module ActiveDirectory
+
+
+$DCs = Get-ADDomainController -Filter *
+
+foreach ($DC in $DCs) {
+    $roles = @()
+
+    $forest = Get-ADForest
+    if ($DC.HostName -eq $forest.SchemaMaster) { $roles += "Schema Master" }
+    if ($DC.HostName -eq $forest.DomainNamingMaster) { $roles += "Domain Naming Master" }
+
+    $domain = Get-ADDomain
+    if ($DC.HostName -eq $domain.RIDMaster) { $roles += "RID Master" }
+    if ($DC.HostName -eq $domain.InfrastructureMaster) { $roles += "Infrastructure Master" }
+    if ($DC.HostName -eq $domain.PDCEmulator) { $roles += "PDC Emulator" }
+
+    [PSCustomObject]@{
+        DomainController = $DC.HostName
+        Roles = $roles -join ', '
+    }
+}
+```
 
 ## Microsoft 365
 ---
