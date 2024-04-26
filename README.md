@@ -12,9 +12,9 @@ A collection of commands, code snippets, and scripts tailored for managing and a
 * [Fun](#fun)
 
 #### Install Winget 
-This will break from time to time, need to visit the winget-cli repo and replace URL
+
 ```powershell
-Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/download/v1.6.2771/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
+Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 ```
 ---
