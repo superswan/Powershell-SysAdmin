@@ -177,6 +177,80 @@ w32tm /resync
 ## Snippets
 ---
 
+#### Inventory collection script (Logon script that pushes system info to share)
+```powershell
+$filename = Join-Path -Path \\osdri-dc22\IT-Inventory\ -ChildPath "${env:COMPUTERNAME}.txt"
+
+
+Get-ComputerInfo | 
+    Select-Object CsName, CsManufacturer, CsModel, BiosSeralNumber, CsProcessors, CsPhyicallyInstalledMemory, OsName, OsVersion, CsUserName |
+    Sort-Object |
+    out-file -FilePath $filename
+```
+
+```powershell
+# Get the current directory
+$currentDirectory = Get-Location
+
+# Define the output CSV file name
+$outputCsv = "$currentDirectory\output.csv"
+
+# Initialize an empty array to store the data
+$dataArray = @()
+
+# Loop through each file in the current directory
+Get-ChildItem -Path $currentDirectory -File | ForEach-Object {
+    $file = $_.FullName
+
+    # Read the file contents
+    $content = Get-Content -Path $file
+
+    # Create a hashtable to store the data for each file
+    $dataHash = @{}
+    
+    # Parse each line and extract key-value pairs
+    foreach ($line in $content) {
+        if ($line -match "^(.*)\s+:\s+(.*)$") {
+            $key = $matches[1].Trim()
+            $value = $matches[2].Trim()
+
+            # Add the key-value pair to the hashtable
+            $dataHash[$key] = $value
+        }
+    }
+
+    # Convert the hashtable to a custom object and add to the data array
+    $dataArray += New-Object PSObject -Property $dataHash
+}
+
+# Define the custom column headers
+$columnHeaders = @{
+    "CsName" = "Computer Name"
+    "CsManufacturer" = "Manufacturer"
+    "CsModel" = "Model"
+    "BiosSeralNumber" = "BIOS Serial Number"
+    "CsProcessors" = "Processor"
+    "CsPhyicallyInstalledMemory" = "Physical Memory (Bytes)"
+    "OsName" = "Operating System"
+    "OsVersion" = "OS Version"
+    "CsUserName" = "User Name"
+}
+
+# Create a new array with custom headers
+$customDataArray = $dataArray | Select-Object @{Name='Computer Name';Expression={$_.CsName}},
+                                                @{Name='Manufacturer';Expression={$_.CsManufacturer}},
+                                                @{Name='Model';Expression={$_.CsModel}},
+                                                @{Name='BIOS Serial Number';Expression={$_.BiosSeralNumber}},
+                                                @{Name='Processor';Expression={$_.CsProcessors}},
+                                                @{Name='Physical Memory (Bytes)';Expression={$_.CsPhyicallyInstalledMemory}},
+                                                @{Name='Operating System';Expression={$_.OsName}},
+                                                @{Name='OS Version';Expression={$_.OsVersion}},
+                                                @{Name='User Name';Expression={$_.CsUserName}}
+
+# Export the data to a CSV file
+$customDataArray | Export-Csv -Path $outputCsv -NoTypeInformation
+```
+
 #### Push Updates to Remote Computers using Invoke-WuJob (PSWindowsUpdate)
 ```powershell
 $Computers = @("PMC01","PMC04","PMC06","PMC08","PMC-JOAN","PMC-SARA","LAWOFFICE-2","PMC03","PMC07")
