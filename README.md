@@ -251,6 +251,68 @@ $customDataArray = $dataArray | Select-Object @{Name='Computer Name';Expression=
 $customDataArray | Export-Csv -Path $outputCsv -NoTypeInformation
 ```
 
+#### Batch convert HEIC to JPG (Requires ImageMagick)
+```powershell
+Add-Type -AssemblyName System.Windows.Forms
+Add-Type -AssemblyName System.Drawing
+
+function Select-FolderDialog {
+    $folderBrowser = New-Object System.Windows.Forms.FolderBrowserDialog
+    $folderBrowser.Description = "Select the folder containing HEIC images"
+    $result = $folderBrowser.ShowDialog()
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        return $folderBrowser.SelectedPath
+    }
+    return $null
+}
+
+function Select-SaveFileDialog {
+    $saveFileDialog = New-Object System.Windows.Forms.SaveFileDialog
+    $saveFileDialog.Filter = "PDF files (*.pdf)|*.pdf"
+    $saveFileDialog.Title = "Save PDF As"
+    $saveFileDialog.DefaultExt = "pdf"
+    $result = $saveFileDialog.ShowDialog()
+    if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
+        return $saveFileDialog.FileName
+    }
+    return $null
+}
+
+function Convert-HEICtoPDF {
+    [System.Windows.Forms.Application]::EnableVisualStyles()
+
+    $inputDir = Select-FolderDialog
+    if (-not $inputDir) {
+        [System.Windows.Forms.MessageBox]::Show("No folder selected. Exiting.")
+        return
+    }
+
+    $outputPdf = Select-SaveFileDialog
+    if (-not $outputPdf) {
+        [System.Windows.Forms.MessageBox]::Show("No output file selected. Exiting.")
+        return
+    }
+
+    $heicFiles = Get-ChildItem -Path $inputDir -Filter *.heic
+    if ($heicFiles.Count -eq 0) {
+        [System.Windows.Forms.MessageBox]::Show("No HEIC files found in the directory.")
+        return
+    }
+
+    foreach ($file in $heicFiles) {
+        $jpgFile = [System.IO.Path]::ChangeExtension($file.FullName, ".jpg")
+        & magick "$($file.FullName)" "$jpgFile"
+    }
+
+    $jpgFiles = Get-ChildItem -Path $inputDir -Filter *.jpg
+    & magick convert $jpgFiles.FullName $outputPdf
+
+    [System.Windows.Forms.MessageBox]::Show("PDF created successfully at $outputPdf")
+}
+
+Convert-HEICtoPDF
+```
+
 #### Push Updates to Remote Computers using Invoke-WuJob (PSWindowsUpdate)
 ```powershell
 $Computers = @("PMC01","PMC04","PMC06","PMC08","PMC-JOAN","PMC-SARA","LAWOFFICE-2","PMC03","PMC07")
