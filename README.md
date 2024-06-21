@@ -522,6 +522,21 @@ Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 .\debian\DistroLauncher-Appx_1.12.1.0_x64\debian.exe
 ```
 
+#### List Mapped Network Printers with IP Address
+```powershell
+$printers = Get-WmiObject -Query "SELECT * FROM Win32_Printer"
+foreach ($printer in $printers) {
+    $portName = $printer.PortName
+    $port = Get-WmiObject -Query "SELECT * FROM Win32_TCPIPPrinterPort WHERE Name = '$portName'"
+    if ($port -ne $null) {
+        [PSCustomObject]@{
+            PrinterName = $printer.Name
+            IPAddress = $port.HostAddress
+        }
+    }
+}
+```
+
 ## Active Directory
 ---
 ```
