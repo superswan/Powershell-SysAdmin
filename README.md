@@ -32,6 +32,12 @@ Not sure if the slack channel is active usually it's the name of the exercise wi
 Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process
 ```
 
+#### Kill processes by company/vendor
+Like when you can't uninstall Creative Cloud
+```powershell
+Get-Process | Where-Object {$_.Company -like "*Adobe*"} | Stop-Process -Force
+```
+
 #### Get Shutdown Events
 ```
 Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message
