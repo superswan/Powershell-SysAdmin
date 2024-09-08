@@ -24,6 +24,12 @@ Not sure if the slack channel is active usually it's the name of the exercise wi
 
 [Under The Wire](https://underthewire.tech)
 
+## Combinging Powershell output with Linux programs (WSL2)
+If a wsl2 distro is installed commands from the default distro can be called with`wsl` this can be combined with `Convert-To-JSON` to use common linux data-wrangling tools like `awk`, `sed`, and `grep`
+```powershell
+get-hotfix | ConvertTo-Json | wsl jq '.[] | .HotFixID' | wsl sort
+```
+
 ## One-Liners
 ---
 
