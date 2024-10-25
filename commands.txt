@@ -1,0 +1,7 @@
+Current User:Get-WmiObject -Class Win32_ComputerSystem | Select-Object UserName
+Running Services:Get-Service | Where-Object {$_.Status -eq 'Running'} | Select-Object Name, DisplayName
+System Info:Get-ComputerInfo | Select-Object WindowsProductName, OsVersion, OsArchitecture
+Network Configuration:ipconfig /all
+Network Connections:Get-NetTCPConnection | Select-Object LocalAddress,LocalPort,RemoteAddress,RemotePort,State
+Installed Software:Get-WmiObject -Class Win32_Product | Select-Object Name, Version
+Disk Space:Get-PSDrive -PSProvider 'FileSystem' | Select-Object Name, Used, Free
