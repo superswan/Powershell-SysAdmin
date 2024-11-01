@@ -2,6 +2,12 @@
 
 A collection of commands, code snippets, and scripts tailored for managing and automating tasks in a Windows environment. Designed for experienced administrators, this resource delves beyond basic PowerShell usage, offering practical solutions for variety of scenarios. 
 
+
+You can access a number of these commands via a simple menu by running the following command. The commands are defined in `commands.json` located in this repo 
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/superswan/Powershell-SysAdmin/refs/heads/master/psreference.ps1" -UseBasicParsing | Invoke-Expression
+```
+
 * [Practice](#practice)
 * [One-Liners](#one-liners)
 * [Snippets](#snippets)
@@ -656,9 +662,10 @@ Get-Mailbox -RecipientTypeDetails UserMailbox | ForEach-Object {
 
 ## Scripts
 ---
-* HP Bloatware Removal
-* AD Audit
-* Microsoft Official Windows Search Reset
+* [HP Bloatware Removal](https://gist.github.com/mark05e/a79221b4245962a477a49eb281d97388) (varied results)
+* [AD Audit](https://github.com/phillips321/adaudit)
+* [Microsoft Official Windows Search Reset](https://www.microsoft.com/en-us/download/details.aspx?id=100295)
+* PSCmder (Really bad PDQ alternative, script and `commands.txt` are in this repo. Usefull for remote installation or command exec)
 
 ## Windows Defender
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
