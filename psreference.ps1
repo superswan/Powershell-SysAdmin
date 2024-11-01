@@ -5,6 +5,7 @@ $commands = Invoke-RestMethod -Uri $url
 Write-Host "☆ PowerShell Reference ☆"
 Write-Host "https://github.com/superswan/Powershell-SysAdmin/`n"
 
+
 # Display Menu
 function Show-Menu {
     $i = 1 
@@ -23,6 +24,7 @@ function Show-Menu {
     return $menuItems
 }
 
+#
 function Execute-Command {
     param (
         [int]$choice,
@@ -31,6 +33,7 @@ function Execute-Command {
     $selectedCommand = $menuItems | Where-Object { $_.Index -eq $choice }
     if ($selectedCommand) {
         Invoke-Expression $selectedCommand.Command
+        Read-Host -Prompt "`nPress Enter to return to the menu."
     } else {
         Write-Host "Invalid selection."
     }
