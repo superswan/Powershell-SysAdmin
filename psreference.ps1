@@ -12,7 +12,9 @@ function Show-Menu {
     $menuItems = @() 
 
     foreach ($command in $commands) {
-        Write-Host "$i. $($command.title) -`n`t$($command.description)`n"
+        Write-Host "$i." -NoNewline
+        Write-Host "$($command.title)" -ForegroundColor Yellow -NoNewline
+        Write-Host ": $($command.description)"
         $menuItems += [PSCustomObject]@{
             Index = $i
             Title = $command.title
@@ -24,7 +26,6 @@ function Show-Menu {
     return $menuItems
 }
 
-#
 function Execute-Command {
     param (
         [int]$choice,
