@@ -10,5 +10,95 @@
         "title": "Check Disk Space",
         "command": "Get-PSDrive -PSProvider FileSystem | Format-Table",
         "description": "Displays available disk space on each drive."
+    },
+    {
+        "title": "Close All Open Windows",
+        "command": "Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process",
+        "description": "Closes all open windows."
+    },
+    {
+        "title": "Kill Processes by Company/Vendor",
+        "command": "Get-Process | Where-Object {$_.Company -like \"*Adobe*\"} | Stop-Process -Force",
+        "description": "Stops processes by company name, e.g., Adobe."
+    },
+    {
+        "title": "Get Shutdown Events",
+        "command": "Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message",
+        "description": "Displays system shutdown events."
+    },
+    {
+        "title": "Get Domain Name",
+        "command": "$domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name",
+        "description": "Retrieves the domain name."
+    },
+    {
+        "title": "Find Domain Controller using DNS",
+        "command": "Resolve-DnsName -Name \"_ldap._tcp.dc._msdcs.$domainName\" -QueryType SRV",
+        "description": "Finds the domain controller using DNS."
+    },
+    {
+        "title": "Pong Command (Listen for Pings)",
+        "command": ".\\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo",
+        "description": "Listens for pings using WinDump."
+    },
+    {
+        "title": "Enable/Disable Firewall (All Profiles)",
+        "command": "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False",
+        "description": "Enables or disables firewall across all profiles."
+    },
+    {
+        "title": "Enable File and Printer Sharing",
+        "command": "Set-NetFirewallRule -DisplayGroup \"File And Printer Sharing\" -Enabled True",
+        "description": "Enables file and printer sharing."
+    },
+    {
+        "title": "Enable Linked Connections",
+        "command": "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f",
+        "description": "Allows admin and regular user accounts to see the same network shares."
+    },
+    {
+        "title": "Enable ICMP",
+        "command": "netsh advfirewall firewall add rule name=\"Allow incoming ping requests IPv4\" dir=in action=allow protocol=icmpv4",
+        "description": "Enables incoming ICMP (ping) requests."
+    },
+    {
+        "title": "Prefer IPv4 over IPv6",
+        "command": "netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4; netsh int ipv6 set prefixpolicy ::/0 45 6",
+        "description": "Adjusts IPv6 prefix policies to prefer IPv4."
+    },
+    {
+        "title": "Reset Networking Stack",
+        "command": "netsh int ip reset; netsh winsock reset",
+        "description": "Resets the network stack."
+    },
+    {
+        "title": "Forcefully Open Internet Explorer",
+        "command": "mshta.exe \"javascript:open();close();\"",
+        "description": "Opens Internet Explorer forcibly."
+    },
+    {
+        "title": "Enable Remote Management",
+        "command": "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 0 /f",
+        "description": "Enables Remote Desktop Protocol (RDP)."
+    },
+    {
+        "title": "Enable Network Level Authentication (NLA)",
+        "command": "Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\\' -Name \"UserAuthentication\" -Value 1",
+        "description": "Enables Network Level Authentication (NLA) for RDP."
+    },
+    {
+        "title": "Enable Remote Desktop Firewall Rule",
+        "command": "Enable-NetFirewallRule -DisplayGroup \"Remote Desktop\"",
+        "description": "Enables firewall rule for Remote Desktop."
+    },
+    {
+        "title": "Enable Remote Event Viewer",
+        "command": "Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru",
+        "description": "Enables remote access to Event Viewer."
+    },
+    {
+        "title": "GPU Reset (Ctrl + WIN + Shift + B)",
+        "command": "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Keyboard {[DllImport(\"user32.dll\")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Keyboard]::keybd_event(0x11, 0, 0, 0); [Keyboard]::keybd_event(0x10, 0, 0, 0); [Keyboard]::keybd_event(0x5B, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 2, 0); [Keyboard]::keybd_event(0x5B, 0, 2, 0); [Keyboard]::keybd_event(0x10, 0, 2, 0); [Keyboard]::keybd_event(0x11, 0, 2, 0);",
+        "description": "Resets the GPU driver using a key sequence."
     }
 ]
