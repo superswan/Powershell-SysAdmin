@@ -1,0 +1,14 @@
+[
+    {
+        "category": "Networking",
+        "title": "Check Network Status",
+        "command": "Get-NetAdapter | Format-Table",
+        "description": "Displays network adapter status."
+    },
+    {
+        "category": "System Information",
+        "title": "Check Disk Space",
+        "command": "Get-PSDrive -PSProvider FileSystem | Format-Table",
+        "description": "Displays available disk space on each drive."
+    }
+]
