@@ -197,7 +197,7 @@ w32tm /resync
 
 #### Inventory collection script (Logon script that pushes system info to share)
 ```powershell
-$filename = Join-Path -Path \\osdri-dc22\IT-Inventory\ -ChildPath "${env:COMPUTERNAME}.txt"
+$filename = Join-Path -Path \\server-name\IT-Inventory\ -ChildPath "${env:COMPUTERNAME}.txt"
 
 
 Get-ComputerInfo | 
@@ -267,6 +267,25 @@ $customDataArray = $dataArray | Select-Object @{Name='Computer Name';Expression=
 
 # Export the data to a CSV file
 $customDataArray | Export-Csv -Path $outputCsv -NoTypeInformation
+```
+
+#### Dump all Bitlocker IDs and Recovery Keys from Active Directory
+```powershell
+
+Import-Module ActiveDirectory
+
+$computers = Get-ADComputer -Filter * -Property Name | ForEach-Object {
+    $recoveryKeys = Get-ADObject -Filter 'objectclass -eq "msFVE-RecoveryInformation"' -SearchBase $_.DistinguishedName -Properties 'msFVE-RecoveryPassword'
+    foreach ($key in $recoveryKeys) {
+        [PSCustomObject]@{
+            ComputerName = $_.Name
+            RecoveryKeyID = $key.Name
+            RecoveryPassword = $key.'msFVE-RecoveryPassword'
+        }
+    }
+}
+
+$computers | Format-Table -AutoSize
 ```
 
 #### Batch convert HEIC to JPG (Requires ImageMagick)
