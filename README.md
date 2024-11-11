@@ -7,6 +7,10 @@ You can access a number of these commands via a simple menu by running the follo
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/superswan/Powershell-SysAdmin/refs/heads/master/psreference.ps1" -UseBasicParsing | Invoke-Expression
 ```
+**Short Version:**
+```powershell
+iwr https://s.lain.la/xSR3y | iex 
+```
 
 * [Practice](#practice)
 * [One-Liners](#one-liners)
