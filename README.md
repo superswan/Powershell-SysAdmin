@@ -198,6 +198,54 @@ w32tm /resync
 
 ## Snippets
 ---
+#### Reset Windows Update 
+```powershell
+# Stop Windows Update Services
+Write-Host "Stopping Windows Update Services..."
+Stop-Service -Name wuauserv -Force -ErrorAction SilentlyContinue
+Stop-Service -Name cryptSvc -Force -ErrorAction SilentlyContinue
+Stop-Service -Name bits -Force -ErrorAction SilentlyContinue
+Stop-Service -Name msiserver -Force -ErrorAction SilentlyContinue
+
+# Rename SoftwareDistribution and Catroot2 Folders
+Write-Host "Renaming SoftwareDistribution and Catroot2 Folders..."
+Rename-Item -Path "C:\Windows\SoftwareDistribution" -NewName "SoftwareDistribution.old" -ErrorAction SilentlyContinue
+Rename-Item -Path "C:\Windows\System32\catroot2" -NewName "catroot2.old" -ErrorAction SilentlyContinue
+
+# Re-register Windows Update DLLs
+Write-Host "Re-registering Windows Update DLLs..."
+$Dlls = @(
+    "atl.dll", "urlmon.dll", "mshtml.dll", "shdocvw.dll", "browseui.dll",
+    "jscript.dll", "vbscript.dll", "scrrun.dll", "msxml.dll", "msxml3.dll",
+    "msxml6.dll", "actxprxy.dll", "softpub.dll", "wintrust.dll", "dssenh.dll",
+    "rsaenh.dll", "gpkcsp.dll", "sccbase.dll", "slbcsp.dll", "cryptdlg.dll",
+    "oleaut32.dll", "ole32.dll", "shell32.dll", "initpki.dll", "wuapi.dll",
+    "wuaueng.dll", "wucltui.dll", "wups.dll", "wups2.dll", "wuweb.dll",
+    "qmgr.dll", "qmgrprxy.dll", "wucltux.dll", "muweb.dll", "wuwebv.dll"
+)
+
+foreach ($Dll in $Dlls) {
+    Try {
+        regsvr32.exe /s "C:\Windows\System32\$Dll"
+        Write-Host "Registered $Dll"
+    } Catch {
+        Write-Warning "Failed to register $Dll"
+    }
+}
+
+# Reset Winsock
+Write-Host "Resetting Winsock..."
+netsh winsock reset
+
+# Restart Windows Update Services
+Write-Host "Restarting Windows Update Services..."
+Start-Service -Name wuauserv -ErrorAction SilentlyContinue
+Start-Service -Name cryptSvc -ErrorAction SilentlyContinue
+Start-Service -Name bits -ErrorAction SilentlyContinue
+Start-Service -Name msiserver -ErrorAction SilentlyContinue
+
+Write-Host "Windows Update reset complete. You may need to restart your computer."
+```
 
 #### Inventory collection script (Logon script that pushes system info to share)
 ```powershell
