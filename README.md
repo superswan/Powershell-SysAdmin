@@ -491,6 +491,23 @@ foreach ($Device in $TouchScreenDevices) {
 }
 ```
 
+#### List all installed software via Registry keys
+```powershell
+$registryPaths = @(
+    "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*",
+    "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*"
+)
+
+
+$installedSoftware = Get-ItemProperty -Path $registryPaths |
+    Select-Object DisplayName, DisplayVersion, Publisher, InstallDate |
+    Where-Object { $_.DisplayName -and $_.DisplayName -ne "" } |
+    Sort-Object DisplayName
+
+
+$installedSoftware
+```
+
 #### Get REG key of any installed program
 ```powershell
 $keys = dir HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall | where { $_.GetValueNames() -contains 'DisplayName' }
