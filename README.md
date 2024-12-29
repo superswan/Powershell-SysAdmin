@@ -13,7 +13,7 @@ Invoke-WebRequest -Uri "https://raw.githubusercontent.com/superswan/Powershell-S
 **Short Version:**
 
 ```powershell
-iwr https://s.lain.la/xSR3y | iex 
+iwr 3to.moe/psr | iex 
 ```
 
 * [Practice](#practice)
