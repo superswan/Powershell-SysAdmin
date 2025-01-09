@@ -51,6 +51,11 @@ get-hotfix | ConvertTo-Json | wsl jq '.[] | .HotFixID' | wsl sort
 
 ## One-Liners
 
+#### Execute last command (Equivalent to Bash `!!`)
+```
+Invoke-History -Id (Get-History -Count 1).Id
+```
+
 #### Close All Open Windows
 
 ```
