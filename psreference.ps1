@@ -1,5 +1,11 @@
-# Load your local JSON
-$raw = Get-Content -Path ".\commands.json" -Raw | ConvertFrom-Json
+$url = 'https://raw.githubusercontent.com/superswan/Powershell-SysAdmin/master/commands.json'
+
+try {
+    $raw = Invoke-RestMethod -Uri $url -ErrorAction Stop
+} catch {
+    Write-Error "Failed to load commands.json from $url"
+    exit 1
+}
 
 function Show-Categories {
     Clear-Host
