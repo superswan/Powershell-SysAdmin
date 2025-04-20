@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Command Manager</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/default.min.css">
+  <style>
+    body { font-family: sans-serif; display: flex; height: 100vh; margin: 0; }
+    #categories { width: 200px; border-right: 1px solid #ccc; padding: 10px; overflow: auto; }
+    #main { flex: 1; padding: 10px; overflow: auto; position: relative; }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { padding: 5px; cursor: pointer; }
+    li.selected { background: #f0f0f0; }
+    h3 { margin-top: 0; }
+    button { margin: 5px 2px; }
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
+    pre { margin: 0; }
+    code { display: block; white-space: pre-wrap; }
+    #formOverlay { display: none; position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; }
+    #formContainer { background: white; padding: 20px; max-width: 600px; width: 90%; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+    #formContainer label { display: block; margin: 10px 0 5px; }
+    #formContainer input, #formContainer textarea { width: 100%; box-sizing: border-box; }
+    #formContainer textarea { height: 150px; font-family: monospace; }
+    #formContainer button { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="categories">
+    <h3>Categories</h3>
+    <ul id="catList"></ul>
+    <button id="addCat">Add Category</button>
+  </div>
+  <div id="main">
+    <h3 id="catTitle">Select a Category</h3>
+    <div id="cmdSection" style="display:none;">
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr><th>Title</th><th>Description</th><th>Command</th><th>Actions</th></tr>
+          </thead>
+          <tbody id="cmdList"></tbody>
+        </table>
+      </div>
+      <button id="addCmd">Add Command</button>
+      <button id="importBtn">Import JSON</button>
+      <button id="download">Download JSON</button>
+      <input type="file" id="importFile" accept="application/json" style="display:none" />
+    </div>
+    <div id="formOverlay">
+      <div id="formContainer">
+        <h3 id="formTitle">Add Command</h3>
+        <label for="cmdTitle">Title</label>
+        <input id="cmdTitle" type="text" />
+        <label for="cmdDesc">Description</label>
+        <input id="cmdDesc" type="text" />
+        <label for="cmdScript">Command / Scriptlet</label>
+        <textarea id="cmdScript"></textarea>
+        <button id="saveCmd">Save</button>
+        <button id="cancelCmd">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <script>
+    let data = JSON.parse(localStorage.getItem('commands') || '[]');
+    let selectedCat = null;
+    let editIdx = null;
+
+    function save() {
+      localStorage.setItem('commands', JSON.stringify(data, null, 2));
+    }
+
+    function renderCats() {
+      const ul = document.getElementById('catList'); ul.innerHTML = '';
+      data.forEach((c,i)=>{
+        const li=document.createElement('li'); li.textContent=c.category;
+        li.onclick=()=>{selectCat(i);renderCats();};
+        if(selectedCat===i) li.classList.add('selected'); ul.appendChild(li);
+      });
+    }
+
+    function selectCat(i){
+      selectedCat=i;
+      document.getElementById('catTitle').textContent=data[i].category;
+      document.getElementById('cmdSection').style.display='block';
+      renderCats(); renderCmds();
+    }
+
+    function renderCmds(){
+      const tbody=document.getElementById('cmdList'); tbody.innerHTML='';
+      data[selectedCat].commands.forEach((cmd,j)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${cmd.title}</td>
+          <td>${cmd.description}</td>
+          <td><pre><code class="language-powershell">${escapeHtml(cmd.command)}</code></pre></td>
+          <td><button onclick="showForm(${j})">Edit</button> <button onclick="deleteCmd(${j})">Delete</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+    }
+
+    function escapeHtml(text) {
+      return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    document.getElementById('addCat').onclick=()=>{
+      const name=prompt('Category name:'); if(!name) return;
+      data.push({category:name,commands:[]}); save(); renderCats();
+    };
+
+    document.getElementById('addCmd').onclick=()=>{ showForm(null); };
+
+    function showForm(j){
+      editIdx=j;
+      const overlay=document.getElementById('formOverlay');
+      document.getElementById('formTitle').textContent = j===null? 'Add Command':'Edit Command';
+      if(j!==null){ const c=data[selectedCat].commands[j]; document.getElementById('cmdTitle').value=c.title; document.getElementById('cmdDesc').value=c.description; document.getElementById('cmdScript').value=c.command; }
+      else{ ['cmdTitle','cmdDesc','cmdScript'].forEach(id=>document.getElementById(id).value=''); }
+      overlay.style.display='flex';
+    }
+
+    document.getElementById('cancelCmd').onclick=()=>{
+      document.getElementById('formOverlay').style.display='none';
+    };
+
+    document.getElementById('saveCmd').onclick=()=>{
+      const title=document.getElementById('cmdTitle').value.trim();
+      const desc=document.getElementById('cmdDesc').value.trim();
+      const cmd=document.getElementById('cmdScript').value;
+      if(!title){ alert('Title required'); return; }
+      const obj={title,description:desc,command:cmd};
+      if(editIdx===null) data[selectedCat].commands.push(obj);
+      else data[selectedCat].commands[editIdx]=obj;
+      save(); renderCmds(); document.getElementById('formOverlay').style.display='none';
+    };
+
+    window.deleteCmd=(j)=>{ if(confirm('Delete this command?')){ data[selectedCat].commands.splice(j,1); save(); renderCmds(); }};
+
+    document.getElementById('download').onclick=()=>{
+      const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+      const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='commands.json'; a.click();
+    };
+
+    const importBtn=document.getElementById('importBtn'), importFile=document.getElementById('importFile');
+    importBtn.onclick=()=>importFile.click();
+    importFile.onchange=e=>{
+      const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{
+        try{ const json=JSON.parse(reader.result);
+          data=json.map(c=>({category:c.category,commands:c.commands})); save(); selectedCat=null; document.getElementById('cmdSection').style.display='none'; renderCats(); alert('Imported!');
+        }catch{alert('Invalid JSON');}
+      }; reader.readAsText(file);
+    };
+
+    renderCats();
+  </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script>hljs.highlightAll();</script>
+</body>
+</html>

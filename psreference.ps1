@@ -1,55 +1,57 @@
-# Load JSON from URL
-$url = "https://raw.githubusercontent.com/superswan/Powershell-SysAdmin/refs/heads/master/commands.json"
-$commands = Invoke-RestMethod -Uri $url
+# Load your local JSON
+$raw = Get-Content -Path ".\commands.json" -Raw | ConvertFrom-Json
 
-Write-Host "☆ PowerShell Reference ☆"
-Write-Host "https://github.com/superswan/Powershell-SysAdmin/`n"
-
-
-# Display Menu
-function Show-Menu {
-    $i = 1 
-    $menuItems = @() 
-
-    foreach ($command in $commands) {
-        Write-Host "$i." -NoNewline
-        Write-Host "$($command.title)" -ForegroundColor Yellow -NoNewline
-        Write-Host ": $($command.description)"
-        $menuItems += [PSCustomObject]@{
-            Index = $i
-            Title = $command.title
-            Command = $command.command
-        }
-        $i++
+function Show-Categories {
+    Clear-Host
+    Write-Host "=== Categories ===" -ForegroundColor Cyan
+    for ($i = 0; $i -lt $raw.Count; $i++) {
+        $n = $i + 1
+        "{0,2}) {1}" -f $n, $raw[$i].category | Write-Host
     }
-
-    return $menuItems
+    " Q) Quit" | Write-Host
 }
 
-function Execute-Command {
-    param (
-        [int]$choice,
-        [array]$menuItems
-    )
-    $selectedCommand = $menuItems | Where-Object { $_.Index -eq $choice }
-    if ($selectedCommand) {
-        Invoke-Expression $selectedCommand.Command
-        Read-Host -Prompt "`nPress Enter to return to the menu."
-    } else {
-        Write-Host "Invalid selection."
+function Show-CommandsInCategory {
+    param($categoryObj)
+    Clear-Host
+    Write-Host "=== $($categoryObj.category) Commands ===" -ForegroundColor Cyan
+    for ($j = 0; $j -lt $categoryObj.commands.Count; $j++) {
+        $m = $j + 1
+        "{0,2}) {1}" -f $m, $categoryObj.commands[$j].title | Write-Host
     }
+    " B) Back" | Write-Host
 }
 
-# Main Loop
 while ($true) {
-    $menuItems = Show-Menu
-    $choice = Read-Host -Prompt "Enter the number of the command to run or 'q' to quit"
+    Show-Categories
+    $catChoice = Read-Host "Select a category"
 
-    if ($choice -eq 'q') { break }
+    if ($catChoice -match '^[Qq]$') { break }
 
-    if ($choice -match '^\d+$' -and ([int]$choice -le $menuItems.Count) -and ([int]$choice -gt 0)) {
-        Execute-Command -choice ([int]$choice) -menuItems $menuItems
-    } else {
-        Write-Host "Invalid choice. Please enter a valid number."
+    if ($catChoice -match '^\d+$' -and ($catChoice -as [int]) -ge 1 -and ($catChoice -as [int]) -le $raw.Count) {
+        $categoryObj = $raw[($catChoice - 1)]
+        while ($true) {
+            Show-CommandsInCategory $categoryObj
+            $cmdChoice = Read-Host "Select a command"
+
+            if ($cmdChoice -match '^[Bb]$') { break }
+
+            if ($cmdChoice -match '^\d+$' -and ($cmdChoice -as [int]) -ge 1 -and ($cmdChoice -as [int]) -le $categoryObj.commands.Count) {
+                $cmdObj = $categoryObj.commands[($cmdChoice - 1)]
+                Clear-Host
+                Write-Host ">>> Running: $($cmdObj.title)`n" -ForegroundColor Yellow
+                $script = if ($cmdObj.command -is [System.Array]) { $cmdObj.command -join "; " } else { $cmdObj.command }
+                Invoke-Expression $script
+                Read-Host "`nPress Enter to return..."
+            }
+            else {
+                Write-Host "Invalid selection!" -ForegroundColor Red
+                Start-Sleep 1
+            }
+        }
+    }
+    else {
+        Write-Host "Invalid category!" -ForegroundColor Red
+        Start-Sleep 1
     }
 }

