@@ -96,6 +96,11 @@ $domainName = [System.DirectoryServices.ActiveDirectory.Domain]::GetCurrentDomai
 Resolve-DnsName -Name "_ldap._tcp.dc._msdcs.$domainName" -Type SRV
 ```
 
+#### Find Domain Controller
+```powershell
+net user /domain
+```
+
 #### "Pong Command" - Listen for Pings. Uses WinDump.exe
 
 ```powershell
