@@ -449,6 +449,37 @@ $computers = Get-ADComputer -Filter * -Property Name | ForEach-Object {
 
 $computers | Format-Table -AutoSize
 ```
+#### Get mapped drives for all users 
+
+```powershell
+# Get all loaded user hives under HKEY_USERS (excluding system accounts)
+$UserSIDs = Get-ChildItem -Path Registry::HKEY_USERS | 
+            Where-Object { $_.Name -match 'S-1-5-21-\d+-\d+-\d+-\d+$' } | 
+            Select-Object -ExpandProperty PSChildName
+
+foreach ($SID in $UserSIDs) {
+    try {
+        # Translate the SID to a friendly NT Username
+        $objSID = New-Object System.Security.Principal.SecurityIdentifier($SID)
+        $Username = $objSID.Translate([System.Security.Principal.NTAccount]).Value
+    } catch {
+        $Username = "Unknown ($SID)"
+    }
+
+    # Path to the user's mapped network drives in the registry
+    $RegPath = "Registry::HKEY_USERS\$SID\Network"
+
+    if (Test-Path $RegPath) {
+        Get-ChildItem -Path $RegPath | ForEach-Object {
+            [PSCustomObject]@{
+                Username   = $Username
+                DriveLetter = ($_.PSChildName + ":")
+                RemotePath  = (Get-ItemProperty -Path $_.PSPath).RemotePath
+            }
+        }
+    }
+}
+```
 
 #### Batch convert HEIC to JPG (Requires ImageMagick)
 
